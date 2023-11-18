@@ -1,0 +1,2 @@
+# shipit
+ Shipit Journal CLI

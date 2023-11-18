@@ -1,0 +1,1 @@
+The shipping company or carrier is responsible for shipping the item.

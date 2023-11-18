@@ -1,0 +1,1 @@
+The ship date is the date on which the item will be shipped from the seller to the buyer. It is usually provided by the seller at the time of purchase or can be found on the shipping confirmation email. The ship date may vary depending on the shipping method chosen by the buyer and the location of the seller and buyer.

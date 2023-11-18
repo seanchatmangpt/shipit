@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.788" timestamp="2023-11-16T16:04:30.858160" hostname="MacBook-Pro.attlocal.net"><testcase classname="src.shipit.demo_cli" name="test_perform_data_analysis" time="0.043" /></testsuite></testsuites>

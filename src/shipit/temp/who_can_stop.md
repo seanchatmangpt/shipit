@@ -1,0 +1,1 @@
+The project can be stopped by anyone with the authority or power to do so, such as a supervisor, manager, or governing body. It can also be stopped by external factors such as lack of funding or resources, changes in regulations or laws, or unforeseen circumstances. Ultimately, anyone with the ability to make decisions and take action can potentially stop the project.

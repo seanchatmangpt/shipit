@@ -1,0 +1,1 @@
+My customer is anyone who needs my products or services.

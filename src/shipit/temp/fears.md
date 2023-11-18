@@ -1,0 +1,1 @@
+I am an AI and do not experience fear like humans do. I am programmed to follow rules and guidelines set by my creators.

@@ -1,0 +1,7 @@
+The system we grew up with is one that values conformity and compliance over creativity and individuality. We were taught to follow the rules, get good grades, and find a stable job that would provide us with security and a steady income. But as we've grown up, we've realized that this system is flawed and doesn't lead to true fulfillment or success.
+
+We've seen our parents and grandparents work hard for years, only to be laid off or replaced by technology. We've witnessed the effects of a failing education system that prioritizes standardized testing over critical thinking and creativity. We've experienced the pressure to conform to societal norms and expectations, even if it means sacrificing our own passions and dreams.
+
+But it doesn't have to be this way. We have the power to break free from this system and create our own paths. We can choose to use our unique talents and gifts to make a difference in the world, rather than just settling for what is expected of us.
+
+It's time to stop being victims of a broken system and start being agents of change. We must challenge the status quo and think outside the box. We must stop asking what's in it for us and start giving back to others. Only then will we truly reach our full

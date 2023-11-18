@@ -1,0 +1,123 @@
+.
+├── Dockerfile
+├── README.md
+├── docker-compose.yml
+├── pbcopy
+├── poetry.lock
+├── pyproject.toml
+├── reports
+│   ├── coverage.xml
+│   └── pytest.xml
+├── src
+│   ├── shipit
+│   │   ├── SUMMARY.md
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   └── cli.cpython-311.pyc
+│   │   ├── book.toml
+│   │   ├── cli.py
+│   │   ├── pages.yaml
+│   │   ├── src
+│   │   │   ├── SUMMARY.md
+│   │   │   ├── badman_test.md
+│   │   │   ├── chapter_1.md
+│   │   │   ├── competition.md
+│   │   │   ├── customer.md
+│   │   │   ├── devils_advocate.md
+│   │   │   ├── edges.md
+│   │   │   ├── essential_to_success.md
+│   │   │   ├── failure.md
+│   │   │   ├── fears.md
+│   │   │   ├── gated_thrashing.md
+│   │   │   ├── influencers_authorities.md
+│   │   │   ├── minus_it.md
+│   │   │   ├── not_bradman.md
+│   │   │   ├── plus_it.md
+│   │   │   ├── project_definition.md
+│   │   │   ├── responsible_person.md
+│   │   │   ├── shame.md
+│   │   │   ├── ship_date.md
+│   │   │   ├── smart_meetings_checklist.md
+│   │   │   ├── take_a_bow.md
+│   │   │   ├── tasks_and_events.md
+│   │   │   ├── the_system_we_grew_up_with.md
+│   │   │   ├── thrash.md
+│   │   │   ├── turn_pro.md
+│   │   │   ├── what_does_good_enough_look_like.md
+│   │   │   ├── what_does_perfect_look_like.md
+│   │   │   ├── when_was_the_last_time.md
+│   │   │   ├── who_can_stop.md
+│   │   │   └── who_else_can_stop.md
+│   │   └── subcommands
+│   │       ├── __init__.py
+│   │       ├── __pycache__
+│   │       │   ├── __init__.cpython-311.pyc
+│   │       │   └── generate_report_cmd.cpython-311.pyc
+│   │       └── generate_report_cmd.py
+│   ├── typetemp
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   └── __init__.cpython-311.pyc
+│   │   ├── environment
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-311.pyc
+│   │   │   │   ├── typed_environment.cpython-311.pyc
+│   │   │   │   └── typed_native_environment.cpython-311.pyc
+│   │   │   ├── typed_environment.py
+│   │   │   └── typed_native_environment.py
+│   │   ├── extension
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-311.pyc
+│   │   │   │   ├── faker_extension.cpython-311.pyc
+│   │   │   │   └── inflection_extension.cpython-311.pyc
+│   │   │   ├── faker_extension.py
+│   │   │   └── inflection_extension.py
+│   │   ├── functional.py
+│   │   └── template
+│   │       ├── __init__.py
+│   │       ├── __pycache__
+│   │       │   ├── __init__.cpython-311.pyc
+│   │       │   ├── async_render_mixin.cpython-311.pyc
+│   │       │   ├── render_funcs.cpython-311.pyc
+│   │       │   └── smart_template.cpython-311.pyc
+│   │       ├── async_render_mixin.py
+│   │       ├── dsl_project.py
+│   │       ├── render_funcs.py
+│   │       ├── render_mixin.py
+│   │       ├── smart_template.py
+│   │       ├── typed_injector.py
+│   │       ├── typed_prompt.py
+│   │       ├── typed_python_source.py
+│   │       └── typed_template.py
+│   └── utils
+│       ├── PyModule.log
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-311.pyc
+│       │   ├── complete.cpython-311.pyc
+│       │   ├── models.cpython-311.pyc
+│       │   └── prompt_tools.cpython-311.pyc
+│       ├── complete.py
+│       ├── create_primatives.py
+│       ├── create_prompts.py
+│       ├── file_tools.py
+│       ├── models.py
+│       ├── prompt_tools.py
+│       ├── py_module.py
+│       ├── radon_workbench.py
+│       └── yaml_tools.py
+└── tests
+    ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-311.pyc
+    │   ├── test_cli.cpython-311-pytest-7.4.3.pyc
+    │   └── test_import.cpython-311-pytest-7.4.3.pyc
+    ├── reports
+    │   └── pytest.xml
+    ├── test_cli.py
+    └── test_import.py
+
+21 directories, 100 files

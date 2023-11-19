@@ -32,11 +32,6 @@ def model_generator(models: List[str]):
     return itertools.cycle(models)
 
 
-# 2. Prompt Generation (could be expanded if there are more prompt types)
-def construct_openai_prompt(base_prompt: str, item: str) -> str:
-    return f"{item}{base_prompt}"
-
-
 # 3. OpenAI Call
 async def call_openai(
     prompt: str, model_name: str, max_tokens: int = 50, temperature: float = 0.7
@@ -70,6 +65,9 @@ async def prompt_map(
     base_prompt: str = "",
     max_tokens: int = 50,
     model_list: List[str] = None,
+    prefix: str = "",
+    suffix: str = "",
+    stop: List[str] = None,
     temperature: float = 0.7,
 ) -> List[str]:
     model_gen = model_generator(model_list or instruct_models)
@@ -77,8 +75,10 @@ async def prompt_map(
 
     async def generate_response(index: int, item: str) -> None:
         model_name = next(model_gen)
-        prompt = construct_openai_prompt(base_prompt, item)
-        response = await timed_openai_call(prompt, item, model_name, max_tokens)
+        prompt = f"{base_prompt} {prefix} {item} {suffix}"
+        print(f"Prompt: {prompt}")
+        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens, stop=stop)
+        print(f"Response: {response}")
         responses.append((index, response))
 
     async with anyio.create_task_group() as tg:

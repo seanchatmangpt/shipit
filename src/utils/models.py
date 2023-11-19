@@ -176,7 +176,7 @@ def get_model(model):
     elif model == "3":
         return "gpt-3.5-turbo-0613"
     elif model == "3i":
-        return "gpt-3.5-turbo-instruct-0914"
+        return "gpt-3.5-turbo-instruct"
     elif model == "4":
         return "gpt-4-0613"
     elif model == "turbo":

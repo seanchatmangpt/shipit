@@ -65,6 +65,7 @@ def generate_context(task_description, max_tokens=200):
     except Exception as e:
         return f"Error generating context: {e}"
 
+
 def solve_task_with_context(task_description, context, max_tokens=200):
     """
     Solve a task using the generated context.
@@ -75,6 +76,7 @@ def solve_task_with_context(task_description, context, max_tokens=200):
     except Exception as e:
         return f"Error solving task: {e}"
 
+
 # Command: AI Integration
 def ai_integration_context(model, target):
     task_description = (
@@ -83,6 +85,7 @@ def ai_integration_context(model, target):
         f"and maintain optimal performance. Include code snippets for critical integration points."
     )
     return generate_context(task_description)
+
 
 # Command: System Optimization
 def sys_optimization_context(system, focus):
@@ -93,6 +96,7 @@ def sys_optimization_context(system, focus):
     )
     return generate_context(task_description)
 
+
 # Command: Code Generation
 def code_generation_context(language, feature):
     task_description = (
@@ -102,70 +106,108 @@ def code_generation_context(language, feature):
     )
     return generate_context(task_description)
 
+
 # Command: AI Integration
 @app.command("ai")
-def ai_integrate(model: str = typer.Option(..., help="AI model name"),
-                 target: str = typer.Option(..., help="Target software component for integration"),
-                 max_tokens: int = typer.Option(200, help="Maximum number of tokens for OpenAI API response")):
+def ai_integrate(
+    model: str = typer.Option(..., help="AI model name"),
+    target: str = typer.Option(..., help="Target software component for integration"),
+    max_tokens: int = typer.Option(
+        200, help="Maximum number of tokens for OpenAI API response"
+    ),
+):
     """
     Integrate an AI model into a software component.
     """
-    context = generate_context(f"Integrate AI model '{model}' into '{target}'", max_tokens)
-    solution = solve_task_with_context(f"Integrate AI model '{model}' into '{target}'", context, max_tokens)
+    context = generate_context(
+        f"Integrate AI model '{model}' into '{target}'", max_tokens
+    )
+    solution = solve_task_with_context(
+        f"Integrate AI model '{model}' into '{target}'", context, max_tokens
+    )
     typer.echo("Solution:\n" + solution)
+
 
 # Command: System Optimization
 @app.command("sys")
-def sys_optimize(system: str = typer.Option(..., help="System to be optimized"),
-                 focus: str = typer.Option(..., help="Focus area of optimization"),
-                 max_tokens: int = typer.Option(200, help="Maximum number of tokens for OpenAI API response")):
+def sys_optimize(
+    system: str = typer.Option(..., help="System to be optimized"),
+    focus: str = typer.Option(..., help="Focus area of optimization"),
+    max_tokens: int = typer.Option(
+        200, help="Maximum number of tokens for OpenAI API response"
+    ),
+):
     """
     Optimize the performance of a specific system.
     """
-    context = generate_context(f"Optimize system '{system}' focusing on '{focus}'", max_tokens)
-    solution = solve_task_with_context(f"Optimize system '{system}' focusing on '{focus}'", context, max_tokens)
+    context = generate_context(
+        f"Optimize system '{system}' focusing on '{focus}'", max_tokens
+    )
+    solution = solve_task_with_context(
+        f"Optimize system '{system}' focusing on '{focus}'", context, max_tokens
+    )
     typer.echo("Solution:\n" + solution)
+
 
 # Command: Code Generation
 @app.command("gen")
-def code_gen(language: str = typer.Option(..., help="Programming language for code generation"),
-             feature: str = typer.Option(..., help="Feature to be implemented in code"),
-             max_tokens: int = typer.Option(200, help="Maximum number of tokens for OpenAI API response")):
+def code_gen(
+    language: str = typer.Option(..., help="Programming language for code generation"),
+    feature: str = typer.Option(..., help="Feature to be implemented in code"),
+    max_tokens: int = typer.Option(
+        200, help="Maximum number of tokens for OpenAI API response"
+    ),
+):
     """
     Generate code for a specified feature in a given programming language.
     """
-    context = generate_context(f"Generate code in '{language}' for feature '{feature}'", max_tokens)
-    solution = solve_task_with_context(f"Generate code in '{language}' for feature '{feature}'", context, max_tokens)
+    context = generate_context(
+        f"Generate code in '{language}' for feature '{feature}'", max_tokens
+    )
+    solution = solve_task_with_context(
+        f"Generate code in '{language}' for feature '{feature}'", context, max_tokens
+    )
     typer.echo("Solution:\n" + solution)
 
 
 @app.command()
 def query():
-    python_completer = WordCompleter(['print', 'def', 'class', 'import', 'from'])
+    python_completer = WordCompleter(["print", "def", "class", "import", "from"])
     user_input = prompt(">>> ", completer=python_completer)
     typer.echo(f"You entered: {user_input}")
 
 
-
 @app.command("nextgen")
-def code_gen(language: str = typer.Option(..., help="Programming language for code generation"),
-             feature: str = typer.Option(..., help="Feature to be implemented in code"),
-             max_tokens: int = typer.Option(200, help="Maximum number of tokens for OpenAI API response")):
+def code_gen(
+    language: str = typer.Option(..., help="Programming language for code generation"),
+    feature: str = typer.Option(..., help="Feature to be implemented in code"),
+    max_tokens: int = typer.Option(
+        200, help="Maximum number of tokens for OpenAI API response"
+    ),
+):
     """
     Generate code for a specified feature in a given programming language.
     Allows iterative refinement based on user feedback.
     """
     global solution
     satisfied = False
-    context = generate_context(f"Generate code in '{language}' for feature '{feature}'", max_tokens)
+    context = generate_context(
+        f"Generate code in '{language}' for feature '{feature}'", max_tokens
+    )
 
     while not satisfied:
-        solution = solve_task_with_context(f"Generate code in '{language}' for feature '{feature}'", context, max_tokens)
+        solution = solve_task_with_context(
+            f"Generate code in '{language}' for feature '{feature}'",
+            context,
+            max_tokens,
+        )
         typer.echo("Generated Code:\n" + solution)
 
         # Ask for user feedback
-        feedback = typer.prompt("Review the code. If you need changes, describe them; otherwise type 'satisfied'")
-        if feedback.lower() == 'satisfied':
+        feedback = typer.prompt(
+            "Review the code. If you need changes, describe them; otherwise type 'satisfied'"
+        )
+        if feedback.lower() == "satisfied":
             satisfied = True
         else:
             # Modify the context with user feedback for further refinement
@@ -173,7 +215,10 @@ def code_gen(language: str = typer.Option(..., help="Programming language for co
 
     typer.echo("Final Code:\n" + solution)
 
-def modify_context_with_feedback(context: str, feedback: str, language: str, feature: str) -> str:
+
+def modify_context_with_feedback(
+    context: str, feedback: str, language: str, feature: str
+) -> str:
     """
     Modify the context by incorporating user feedback.
     """

@@ -48,7 +48,7 @@ async def render_pages_from_yaml(ctx: Context, yaml_file):
 
     async with anyio.create_task_group() as tg:
         for item in data:
-            config = ctx.obj
+            config = ctx.obj["config"]
             output_path = (
                 Path(config.directory) / item["file"]
                 if config.directory
@@ -62,7 +62,7 @@ async def render_pages_from_yaml(ctx: Context, yaml_file):
 
 @app.command()
 def render(ctx: Context):
-    config = ctx.obj
+    config = ctx.obj["config"]
     yaml_file = Path(__file__).parent / "pages.yaml"
     asyncio.run(render_pages_from_yaml(ctx, yaml_file))
     typer.echo("Pages rendered successfully.")
@@ -70,7 +70,7 @@ def render(ctx: Context):
 
 @app.command()
 def build(ctx: Context):
-    config = ctx.obj
+    config = ctx.obj["config"]
     build_dir = Path(config.directory) if config.directory else Path(__file__).parent
     subprocess.run(["mdbook", "build"], cwd=build_dir)
     typer.echo("mdbook built successfully.")
@@ -78,7 +78,7 @@ def build(ctx: Context):
 
 @app.command()
 def serve(ctx: Context):
-    config = ctx.obj
+    config = ctx.obj["config"]
     serve_dir = Path(config.directory) if config.directory else Path(__file__).parent
     subprocess.run(["mdbook", "serve"], cwd=serve_dir)
     typer.echo("mdbook is being served.")
@@ -86,7 +86,7 @@ def serve(ctx: Context):
 
 @app.command()
 def init(ctx: Context):
-    config = ctx.obj
+    config = ctx.obj["config"]
     init_dir = Path(config.directory) if config.directory else Path(__file__).parent
     subprocess.run(["mdbook", "init"], cwd=init_dir)
     typer.echo("mdbook initialized successfully.")
@@ -100,7 +100,7 @@ def generate_commit_message(context: str) -> str:
 
 @app.command()
 def commit(ctx: Context):
-    config = ctx.obj
+    config = ctx.obj["config"]
     git_dir = Path(config.directory) if config.directory else Path(__file__).parent
 
     # Ensure we're in the right directory for Git operations
@@ -118,5 +118,3 @@ def commit(ctx: Context):
     # Commit with the generated message
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
     typer.echo(f"Changes committed with message: {commit_message}")
-
-

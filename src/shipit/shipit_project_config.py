@@ -1,7 +1,7 @@
 import tempfile
 from datetime import datetime
 
-from pydantic import BaseModel, root_validator, model_validator
+from pydantic import BaseModel
 from typing import List, Dict, Optional
 from pathlib import Path
 
@@ -18,21 +18,21 @@ class ShipitProjectConfig(YAMLMixin, BaseModel):
     dependencies: List[str] = []
     configuration: Dict[str, str] = {}
 
-    @model_validator(mode="after")
-    def check_project_name(self) -> "ShipitProjectConfig":
-        if not self.project_name or not self.project_name.strip():
-            raise ValueError("Project name cannot be empty.")
-        return self
-
-    @model_validator(mode="after")
-    def check_ship_date(self) -> "ShipitProjectConfig":
-        try:
-            datetime.strptime(
-                self.ship_date, "%Y-%m-%d"
-            )  # Define your date format here
-        except ValueError:
-            raise ValueError("Invalid date format. Expected YYYY-MM-DD.")
-        return self
+    # @model_validator(mode="after")
+    # def check_project_name(self) -> "ShipitProjectConfig":
+    #     if not self.project_name or not self.project_name.strip():
+    #         raise ValueError("Project name cannot be empty.")
+    #     return self
+    #
+    # @model_validator(mode="after")
+    # def check_ship_date(self) -> "ShipitProjectConfig":
+    #     try:
+    #         datetime.strptime(
+    #             self.ship_date, "%Y-%m-%d"
+    #         )  # Define your date format here
+    #     except ValueError:
+    #         raise ValueError("Invalid date format. Expected YYYY-MM-DD.")
+    #     return self
 
     class Config:
         arbitrary_types_allowed = True

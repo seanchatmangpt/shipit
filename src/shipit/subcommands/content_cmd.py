@@ -2,11 +2,16 @@ import typer
 
 app = typer.Typer()
 
+
 @app.command("report")
 def business_report(
     subject: str = typer.Argument(..., help="Central subject or focus of the report."),
-    pages: int = typer.Option(None, "--pages", help="Estimated number of pages or word count (optional)."),
-    format: str = typer.Option(None, "--format", help="Preferred file format for the report (optional)."),
+    pages: int = typer.Option(
+        None, "--pages", help="Estimated number of pages or word count (optional)."
+    ),
+    format: str = typer.Option(
+        None, "--format", help="Preferred file format for the report (optional)."
+    ),
 ):
     """
     Construct detailed business reports including market analysis, financial summaries, and project reviews.
@@ -19,11 +24,18 @@ def business_report(
     if format:
         typer.echo(f"Preferred Format: {format}")
 
+
 @app.command("post")
 def net_post(
-    theme: str = typer.Argument(..., help="Core theme or subject for the LinkedIn post."),
-    target: str = typer.Option(None, "--target", help="Intended audience demographic (optional)."),
-    words: int = typer.Option(None, "--words", help="Desired word count for the post (optional)."),
+    theme: str = typer.Argument(
+        ..., help="Core theme or subject for the LinkedIn post."
+    ),
+    target: str = typer.Option(
+        None, "--target", help="Intended audience demographic (optional)."
+    ),
+    words: int = typer.Option(
+        None, "--words", help="Desired word count for the post (optional)."
+    ),
 ):
     """
     Generate engaging and insightful LinkedIn posts to boost professional networking, brand visibility, and thought
@@ -36,10 +48,15 @@ def net_post(
     if words is not None:
         typer.echo(f"Desired Word Count: {words}")
 
+
 @app.command("plan")
 def plan_write(
     goal: str = typer.Argument(..., help="Main goal or purpose of the business plan."),
-    elements: str = typer.Option(None, "--elements", help="Key elements or sections to include, separated by commas (optional)."),
+    elements: str = typer.Option(
+        None,
+        "--elements",
+        help="Key elements or sections to include, separated by commas (optional).",
+    ),
 ):
     """
     Develop comprehensive and persuasive business plans and proposals. Includes sections like executive summaries,
@@ -50,11 +67,16 @@ def plan_write(
     if elements:
         typer.echo(f"Elements/Sections: {elements}")
 
+
 @app.command("pr")
 def news_draft(
     headline: str = typer.Argument(..., help="Headline or focus of the press release."),
-    date: str = typer.Option(None, "--date", help="Scheduled date for release (optional)."),
-    wordcount: int = typer.Option(None, "--wordcount", help="Target word count for the release (optional)."),
+    date: str = typer.Option(
+        None, "--date", help="Scheduled date for release (optional)."
+    ),
+    wordcount: int = typer.Option(
+        None, "--wordcount", help="Target word count for the release (optional)."
+    ),
 ):
     """
     Craft impactful press releases for company announcements, product launches, and corporate news. Ensure alignment
@@ -67,10 +89,15 @@ def news_draft(
     if wordcount is not None:
         typer.echo(f"Target Word Count: {wordcount}")
 
+
 @app.command("profile")
 def linkedin_opt(
     part: str = typer.Argument(..., help="Profile section for optimization."),
-    details: str = typer.Option(None, "--details", help="Specific content or keywords for enhancement (optional)."),
+    details: str = typer.Option(
+        None,
+        "--details",
+        help="Specific content or keywords for enhancement (optional).",
+    ),
 ):
     """
     Optimize LinkedIn profiles to enhance professional image and network reach. Focus on key sections like summaries,
@@ -81,11 +108,16 @@ def linkedin_opt(
     if details:
         typer.echo(f"Optimization Details/Keywords: {details}")
 
+
 @app.command("ad")
 def ad_craft(
     product: str = typer.Argument(..., help="Product or service featured in the ad."),
-    audience: str = typer.Option(None, "--audience", help="Target audience or demographic (optional)."),
-    length: int = typer.Option(None, "--length", help="Desired length in words (optional)."),
+    audience: str = typer.Option(
+        None, "--audience", help="Target audience or demographic (optional)."
+    ),
+    length: int = typer.Option(
+        None, "--length", help="Desired length in words (optional)."
+    ),
 ):
     """
     Design compelling and persuasive ad copy for marketing campaigns. Tailor messaging to product features, target
@@ -98,11 +130,18 @@ def ad_craft(
     if length is not None:
         typer.echo(f"Desired Length (Words): {length}")
 
+
 @app.command("speech")
 def orate_write(
     event: str = typer.Argument(..., help="Specific event or occasion for the speech."),
-    tone: str = typer.Option(None, "--tone", help="Preferred tone or style (e.g., inspiring, informative) (optional)."),
-    duration: int = typer.Option(None, "--duration", help="Estimated speech duration or word count (optional)."),
+    tone: str = typer.Option(
+        None,
+        "--tone",
+        help="Preferred tone or style (e.g., inspiring, informative) (optional).",
+    ),
+    duration: int = typer.Option(
+        None, "--duration", help="Estimated speech duration or word count (optional)."
+    ),
 ):
     """
     Compose eloquent and impactful speeches for corporate events, presentations, and keynotes. Ensure speeches are
@@ -114,6 +153,7 @@ def orate_write(
         typer.echo(f"Preferred Tone/Style: {tone}")
     if duration is not None:
         typer.echo(f"Estimated Duration/Word Count: {duration}")
+
 
 if __name__ == "__main__":
     app()

@@ -96,19 +96,20 @@ async def create_dict(prompt, min_len=1, max_len=20, **kwargs) -> dict:
     # Explicit instructions without line breaks within the dictionary
     instructions = dedent(
         f"""Create a Python dictionary where both keys and values are strings.
-                              The dictionary should have a minimum size of {min_len} and a maximum size of {max_len}.
-                              It should be formatted according to PEP8 guidelines with no line breaks within the dictionary.
-                              The dictionary should be based on the prompt: \n\n```prompt\n\n{prompt}\n\n```\n\n
-                              Please complete the following code block:
-                              ```python
-                              from typing import Dict
-                              perfect_str_dict: Dict[str, str] = {{"""
+The dictionary should have a minimum size of {min_len} and a maximum size of {max_len}.
+It should be formatted according to PEP8 guidelines with no line breaks within the dictionary.
+The dictionary should be based on the prompt: \n\n```prompt\n\n{prompt}\n\n```\n\n
+Please complete the following code block:
+```python
+from typing import Dict
+perfect_str_dict: Dict[str, str] = {{"""
     )
+
 
     result = await acreate(
         prompt=instructions,
         stop=["```", "\n\n"],
-        max_tokens=2000,
+        max_tokens=3000,
         **kwargs,
     )
 

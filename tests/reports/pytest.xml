@@ -1,1 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.399" timestamp="2023-11-15T20:57:34.479124" hostname="MacBook-Pro.attlocal.net"><testcase classname="tests.test_cli" name="test_init_command" time="0.017" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.699" timestamp="2023-11-18T17:32:18.266727" hostname="MacBook-Pro.attlocal.net"><testcase classname="tests.test_cal_cmd" name="test_list_calendar_events_with_no_events" time="0.026"><failure message="assert in failed. [pytest-clarity diff shown]&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32mNo events found#x1B[0m&#10;  #x1B[0m#x1B[31mid,summary,dtstart,dtend,duration,description,location#x1B[0m&#10;  #x1B[0m&#10;  #x1B[0m">mock_session = None
+
+    def test_list_calendar_events_with_no_events(mock_session):
+        result = runner.invoke(app, ["cal", "list"])
+        assert result.exit_code == 0
+&gt;       assert "No events found" in result.stdout
+E       assert in failed. [pytest-clarity diff shown]
+E         #x1B[0m
+E         #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below
+E         #x1B[0m
+E         #x1B[0m#x1B[32mNo events found#x1B[0m
+E         #x1B[0m#x1B[31mid,summary,dtstart,dtend,duration,description,location#x1B[0m
+E         #x1B[0m
+E         #x1B[0m
+
+test_cal_cmd.py:70: AssertionError</failure></testcase></testsuite></testsuites>

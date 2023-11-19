@@ -1,5 +1,4 @@
 import os
-import inspect
 
 import typer
 from importlib import import_module
@@ -12,6 +11,20 @@ from utils.date_tools import next_friday
 from shipit.shipit_project_config import (
     ShipitProjectConfig,
 )  # Adjust the import path as necessary
+
+
+from sqlmodel import create_engine, SQLModel, Session, select
+
+# SQLModel.DEBUG = True
+
+DATABASE_URL = "sqlite:///./dev.db"
+engine = create_engine(DATABASE_URL)
+
+
+
+def get_session():
+    return Session(engine)
+
 
 app = typer.Typer()
 
@@ -34,8 +47,8 @@ load_subcommands()
 @app.callback()
 def main(ctx: Context):
     config_file = Path().cwd() / "shipit_project.yaml"
-    ctx.obj = ShipitProjectConfig.load(str(config_file))
-
+    SQLModel.metadata.create_all(engine)
+    ctx.obj = {"config": ShipitProjectConfig.load(str(config_file)), "session": get_session()}
 
 
 @app.command()
@@ -63,7 +76,7 @@ def init(ctx: Context):
     config.save()
 
     typer.echo(f"Initialized new Shipit project in {directory}")
-    ctx.obj = config
+    ctx.obj["config"] = config
 
 
 def generate_context(task_description, max_tokens=200):
@@ -76,6 +89,7 @@ def generate_context(task_description, max_tokens=200):
     except Exception as e:
         return f"Error generating context: {e}"
 
+
 def solve_task_with_context(task_description, context, max_tokens=200):
     """
     Solve a task using the generated context.
@@ -86,10 +100,13 @@ def solve_task_with_context(task_description, context, max_tokens=200):
     except Exception as e:
         return f"Error solving task: {e}"
 
+
 @app.command()
-def solve(task_description: str = typer.Option(..., prompt="Enter task description"),
-         max_context_tokens: int = 200,
-         max_solution_tokens: int = 200):
+def solve(
+    task_description: str = typer.Option(..., prompt="Enter task description"),
+    max_context_tokens: int = 200,
+    max_solution_tokens: int = 200,
+):
     """
     Automatically generate context and solve a task based on user input.
     """
@@ -102,10 +119,11 @@ def solve(task_description: str = typer.Option(..., prompt="Enter task descripti
     typer.echo("Solution:\n" + solution)
 
 
-@app.command()
-def work(ctx: Context):
-    """Workbench"""
-    print(inspect.getsource(work))
+# @app.command("list")
+# def list_calendar_events(ctx: Context):
+#     """List calendar events"""
+#     session = ctx.obj.get("session")
+#     print(session.exec(select(Event)).all())
 
 if __name__ == "__main__":
     app()

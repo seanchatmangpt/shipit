@@ -40,14 +40,14 @@ def create(config: LLMConfig = None, **kwargs):
         presence_penalty = config.presence_penalty
         stop = config.stop
     else:
-        prompt = kwargs.get('prompt', '')
-        model = kwargs.get('model', '3i')
-        temperature = kwargs.get('temperature', 0)
-        max_tokens = kwargs.get('max_tokens', 250)
-        top_p = kwargs.get('top_p', 1)
-        frequency_penalty = kwargs.get('frequency_penalty', 0)
-        presence_penalty = kwargs.get('presence_penalty', 0)
-        stop = kwargs.get('stop', None)
+        prompt = kwargs.get("prompt", "")
+        model = kwargs.get("model", "3i")
+        temperature = kwargs.get("temperature", 0)
+        max_tokens = kwargs.get("max_tokens", 250)
+        top_p = kwargs.get("top_p", 1)
+        frequency_penalty = kwargs.get("frequency_penalty", 0)
+        presence_penalty = kwargs.get("presence_penalty", 0)
+        stop = kwargs.get("stop", None)
 
     response = openai.completions.create(
         model=get_model(model),
@@ -74,14 +74,14 @@ async def acreate(config: LLMConfig = None, **kwargs):
         presence_penalty = config.presence_penalty
         stop = config.stop
     else:
-        prompt = kwargs.get('prompt', '')
-        model = kwargs.get('model', '3i')
-        temperature = kwargs.get('temperature', 0)
-        max_tokens = kwargs.get('max_tokens', 250)
-        top_p = kwargs.get('top_p', 1)
-        frequency_penalty = kwargs.get('frequency_penalty', 0)
-        presence_penalty = kwargs.get('presence_penalty', 0)
-        stop = kwargs.get('stop', None)
+        prompt = kwargs.get("prompt", "")
+        model = kwargs.get("model", "3i")
+        temperature = kwargs.get("temperature", 0)
+        max_tokens = kwargs.get("max_tokens", 250)
+        top_p = kwargs.get("top_p", 1)
+        frequency_penalty = kwargs.get("frequency_penalty", 0)
+        presence_penalty = kwargs.get("presence_penalty", 0)
+        stop = kwargs.get("stop", None)
 
     model = get_model(model)
 
@@ -93,7 +93,7 @@ async def acreate(config: LLMConfig = None, **kwargs):
         top_p=top_p,
         frequency_penalty=frequency_penalty,
         presence_penalty=presence_penalty,
-        stop=stop
+        stop=stop,
     )
 
     return response.choices[0].text.strip()
@@ -168,11 +168,15 @@ def chat(
                 # res = llama.complete(prompt=prompt)
             elif funcs:
                 res = get_response(
-                    openai.chat.completions.create(**params), raw_msg=raw_msg, funcs=funcs
+                    openai.chat.completions.create(**params),
+                    raw_msg=raw_msg,
+                    funcs=funcs,
                 )
             else:
                 res = get_response(
-                    openai.chat.completions.create(**params), raw_msg=raw_msg, funcs=funcs
+                    openai.chat.completions.create(**params),
+                    raw_msg=raw_msg,
+                    funcs=funcs,
                 )
 
             write_response(mode, prompt, res, write_path)

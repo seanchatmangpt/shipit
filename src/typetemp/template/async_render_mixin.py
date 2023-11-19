@@ -21,7 +21,9 @@ class AsyncRenderMixin:
         """
         self._env = async_native_environment if use_native else async_environment
 
-        template = self._env.from_string(self.source)  # Assuming self.env is a jinja2.Environment
+        template = self._env.from_string(
+            self.source
+        )  # Assuming self.env is a jinja2.Environment
 
         render_dict = kwargs.copy()
         render_dict.update(await self._render_vars())
@@ -34,17 +36,20 @@ class AsyncRenderMixin:
             print(self.output)
         elif self.to:
             # to_template = self._env.from_string(self.to)
-            rendered_to = self.to  # os.path.join(await to_template.render(**render_dict))  # If needed, make this async too
+            rendered_to = (
+                self.to
+            )  # os.path.join(await to_template.render(**render_dict))  # If needed, make this async too
 
             # Create the directory if it doesn't exist
             os.makedirs(os.path.dirname(rendered_to), exist_ok=True)
             rendered_to = os.path.abspath(rendered_to)
 
-            async with aiofiles.open(rendered_to, "w") as file:  # Using aiofiles for async file operations
+            async with aiofiles.open(
+                rendered_to, "w"
+            ) as file:  # Using aiofiles for async file operations
                 await file.write(self.output)
 
         return self.output
-
 
     async def _render_vars(self) -> Dict[str, Any]:
         properties = self.__dict__.copy()
@@ -59,7 +64,9 @@ class AsyncRenderMixin:
 
         return properties
 
-    async def _concurrent_render(self, name: str, value: 'AsyncRenderMixin', properties: Dict[str, Any]):
+    async def _concurrent_render(
+        self, name: str, value: "AsyncRenderMixin", properties: Dict[str, Any]
+    ):
         properties[name] = await value._render()
 
     async def _llm_call(self):

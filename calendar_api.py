@@ -7,8 +7,11 @@ from googleapiclient.errors import HttpError
 
 app = typer.Typer()
 
+
 @app.command()
-def create_event(name: str, start_time: str, end_time: str, description: Optional[str] = None):
+def create_event(
+    name: str, start_time: str, end_time: str, description: Optional[str] = None
+):
     """
     Create a new event in the user's Google Calendar using the given parameters.
     :param name: The name of the event
@@ -17,14 +20,14 @@ def create_event(name: str, start_time: str, end_time: str, description: Optiona
     :param description: Optional description for the event
     """
     try:
-        service = build('calendar', 'v3')
+        service = build("calendar", "v3")
         event = {
-            'summary': name,
-            'start': {'dateTime': start_time},
-            'end': {'dateTime': end_time},
-            'description': description
+            "summary": name,
+            "start": {"dateTime": start_time},
+            "end": {"dateTime": end_time},
+            "description": description,
         }
-        service.events().insert(calendarId='primary', body=event).execute()
+        service.events().insert(calendarId="primary", body=event).execute()
         typer.echo("Event created successfully!")
     except HttpError as e:
         typer.echo("Error creating event: {}".format(e))

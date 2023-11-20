@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import openai
@@ -7,7 +8,7 @@ from sqlmodel import Field, SQLModel, Relationship, select
 from datetime import datetime
 from typing import Optional, List
 
-from shipit.cli import get_session
+from shipit.cli import get_session, get_mem_store
 from utils.crud_tools import add_model, update_model, delete_model, get_model
 
 
@@ -44,6 +45,11 @@ class Event(SQLModel, table=True):
     def __repr__(self):
         return f"Event(id={self.id}, summary='{self.summary}', dtstart={self.dtstart}, " \
                f"dtend={self.dtend}, duration={self.duration}, description='{self.description}', " \
+               f"location='{self.location}')"
+
+    def __str__(self):
+        return f"Event(id={self.id}, summary='{self.summary}', dtstart='{str(self.dtstart)}', " \
+               f"dtend='{str(self.dtend)}', duration={self.duration}, description='{self.description}', " \
                f"location='{self.location}')"
 
     @staticmethod
@@ -83,26 +89,23 @@ class Event(SQLModel, table=True):
 
     @staticmethod
     @require(lambda event_id: isinstance(event_id, int))
-    @require(lambda uid: isinstance(uid, str))
     @require(lambda dtstart: parser.parse(dtstart))
     @require(lambda dtend: dtend is None or parser.parse(dtend))
     @require(lambda duration: duration is None or isinstance(duration, str))
     @require(lambda summary: summary is None or isinstance(summary, str))
     @require(lambda description: description is None or isinstance(description, str))
     @require(lambda location: location is None or isinstance(location, str))
-    @ensure(lambda result: result.id is not None)
+    # @ensure(lambda result: result.id is not None)
     def update(
             event_id: int,
-            uid: str,
             dtstart: str,
             dtend: str = None,
             duration: str = None,
             summary: str = None,
             description: str = None,
             location: str = None,
-    ) -> "Event":
+    ):
         with update_model(Event, event_id) as event:
-            event.uid = uid
             event.dtstamp = datetime.utcnow()
             event.dtstart = parser.parse(dtstart)
             event.dtend = parser.parse(dtend) if dtend else None
@@ -110,8 +113,6 @@ class Event(SQLModel, table=True):
             event.summary = summary
             event.description = description
             event.location = location
-
-            return event
 
     @staticmethod
     @require(lambda event_id: isinstance(event_id, int))
@@ -141,6 +142,16 @@ class Event(SQLModel, table=True):
             .limit(per_page)
         ).all()
 
+    @staticmethod
+    def query(text: str,
+              where: dict = None,
+              n_results: int = 10) -> List["Event"]:
+        """Query events"""
+        results = get_mem_store().query(collection_id="Event_collection", query=text, where=where, n_results=n_results)
+        result_ids = [json.loads(r)['id'] for r in results['documents'][0]]
+        models = get_session().exec(select(Event).where(Event.id.in_(result_ids))).all()
+        # sort models by result_ids
+        return sorted(models, key=lambda m: result_ids.index(m.id))
 
 
 class Todo(SQLModel, table=True):
@@ -178,6 +189,3 @@ class Alarm(SQLModel, table=True):
     description: Optional[str] = Field(description="Description of the alarm")
     event_id: Optional[int] = Field(default=None, foreign_key="event.id")
     event: Optional[Event] = Relationship(back_populates="alarms")
-
-
-

@@ -3,7 +3,7 @@ import itertools
 import time
 
 # import anyio
-from typing import Iterable, List
+from typing import Iterable, List, Dict
 
 from icontract import ensure, require
 
@@ -68,7 +68,7 @@ async def prompt_map(
     prefix: str = "",
     suffix: str = "",
     stop: List[str] = None,
-    temperature: float = 0.7,
+    temperature: float = 0.0,
 ) -> List[str]:
     model_gen = model_generator(model_list or instruct_models)
     responses = []
@@ -77,7 +77,8 @@ async def prompt_map(
         model_name = next(model_gen)
         prompt = f"{base_prompt} {prefix} {item} {suffix}"
         print(f"Prompt: {prompt}")
-        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens, stop=stop)
+        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens,
+                                 stop=stop, temperature=temperature)
         print(f"Response: {response}")
         responses.append((index, response))
 
@@ -89,6 +90,36 @@ async def prompt_map(
     sorted_responses = [resp for _, resp in sorted(responses)]
 
     return sorted_responses
+
+
+
+async def prompt_dict(
+    prompts_dict: Dict[str, str],
+    base_prompt: str = "",
+    max_tokens: int = 50,
+    model_list: List[str] = None,
+    prefix: str = "",
+    suffix: str = "",
+    stop: List[str] = None,
+    temperature: float = 0.0,
+) -> Dict[str, str]:
+    model_gen = model_generator(model_list or instruct_models)
+    responses = {}
+
+    async def generate_response(key: str, item: str) -> None:
+        model_name = next(model_gen)
+        prompt = f"{base_prompt} {prefix} {item} {suffix}"
+        # print(f"Prompt: {prompt}")
+        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens,
+                                 stop=stop, temperature=temperature)
+        # print(f"Response: {response}")
+        responses[key] = response
+
+    async with anyio.create_task_group() as tg:
+        for key, item in prompts_dict.items():
+            tg.start_soon(generate_response, key, item)
+
+    return responses
 
 
 # [Rest of your functions and example usage]

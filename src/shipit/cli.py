@@ -6,6 +6,7 @@ from pathlib import Path
 
 from typer import Context
 
+from utils.chroma_memstore import ChromaMemStore
 from utils.complete import create
 from utils.date_tools import next_friday
 from shipit.shipit_project_config import (
@@ -20,6 +21,9 @@ from sqlmodel import create_engine, SQLModel, Session, select
 DATABASE_URL = "sqlite:///./dev.db"
 engine = create_engine(DATABASE_URL)
 
+
+def get_mem_store():
+    return ChromaMemStore(".mem_store")
 
 
 def get_session():
@@ -43,9 +47,12 @@ def load_subcommands():
 
 load_subcommands()
 
+# - Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+os.environ["TOKENIZERS_PARALLELISM"] = "(true | false)"
 
 @app.callback()
 def main(ctx: Context):
+
     config_file = Path().cwd() / "shipit_project.yaml"
     SQLModel.metadata.create_all(engine)
     ctx.obj = {"config": ShipitProjectConfig.load(str(config_file)), "session": get_session()}

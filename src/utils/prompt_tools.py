@@ -77,8 +77,13 @@ async def prompt_map(
         model_name = next(model_gen)
         prompt = f"{base_prompt} {prefix} {item} {suffix}"
         print(f"Prompt: {prompt}")
-        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens,
-                                 stop=stop, temperature=temperature)
+        response = await acreate(
+            prompt=prompt,
+            model=model_name,
+            max_tokens=max_tokens,
+            stop=stop,
+            temperature=temperature,
+        )
         print(f"Response: {response}")
         responses.append((index, response))
 
@@ -91,6 +96,36 @@ async def prompt_map(
 
     return sorted_responses
 
+
+async def batched_prompt_map(
+    prompts_iterable: Iterable[str],
+    base_prompt: str = "",
+    max_tokens: int = 50,
+    model_list: List[str] = None,
+    prefix: str = "",
+    suffix: str = "",
+    stop: List[str] = None,
+    temperature: float = 0.0,
+    batch_size: int = 5,
+):
+    """
+    This function takes a batch size and kwargs and returns a list of responses.
+    """
+    responses = []
+    for i in range(0, len(prompts_iterable), batch_size):
+        batch = prompts_iterable[i : i + batch_size]
+        batch_responses = await prompt_map(
+            prompts_iterable=batch,
+            base_prompt=base_prompt,
+            max_tokens=max_tokens,
+            model_list=model_list,
+            prefix=prefix,
+            suffix=suffix,
+            stop=stop,
+            temperature=temperature,
+        )
+        responses.extend(batch_responses)
+    return responses
 
 
 async def prompt_dict(
@@ -109,10 +144,15 @@ async def prompt_dict(
     async def generate_response(key: str, item: str) -> None:
         model_name = next(model_gen)
         prompt = f"{base_prompt} {prefix} {item} {suffix}"
-        # print(f"Prompt: {prompt}")
-        response = await acreate(prompt=prompt, model=model_name, max_tokens=max_tokens,
-                                 stop=stop, temperature=temperature)
-        # print(f"Response: {response}")
+        print(f"Prompt: {prompt}")
+        response = await acreate(
+            prompt=prompt,
+            model=model_name,
+            max_tokens=max_tokens,
+            stop=stop,
+            temperature=temperature,
+        )
+        print(f"Response: {response}")
         responses[key] = response
 
     async with anyio.create_task_group() as tg:
@@ -175,7 +215,6 @@ async def prompt_filter(
 
 
 filter_prompt = "Is the statement in quotes positive?"
-
 
 statements = [
     "'The sun is not shining today.'",
@@ -290,6 +329,7 @@ async def main():
 from typing import Callable, List, Type
 
 from icontract import ensure, require
+
 
 # I have IMPLEMENTED your PerfectPythonProductionCode® AGI enterprise innovative and opinionated best practice IMPLEMENTATION code of your requirements.
 

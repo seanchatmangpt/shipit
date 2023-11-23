@@ -6,7 +6,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="smartlint" />
+    <orderEntry type="module" module-name="test_agent" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

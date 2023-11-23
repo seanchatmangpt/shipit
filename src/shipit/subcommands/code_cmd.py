@@ -13,7 +13,7 @@ from utils.complete import create
 from utils.create_prompts import create_python
 from utils.radon_workbench import fix_code
 
-app = typer.Typer(help="Advanced Coding Assistance for Senior Developers")
+app = typer.Typer(help="Advanced Coding Assistant")
 
 
 @app.command()
@@ -26,18 +26,6 @@ def module(
     prompt = typer.prompt("Enter a prompt for the module")
     asyncio.run(create_python(prompt=prompt, filepath=f"{Path.cwd()}/{filename}"))
     typer.echo("Module generated successfully.")
-
-
-@app.command()
-def bot():
-    """Answer a quick question."""
-    prompt = typer.prompt(
-        f"Hello, I am your friendly bot. What would you help with today?"
-    )
-
-    typer.echo(
-        create(prompt=f"You are a friendly help bot. Here is my question:{prompt}")
-    )
 
 
 @app.command()
@@ -205,9 +193,9 @@ def code_gen(
 
         # Ask for user feedback
         feedback = typer.prompt(
-            "Review the code. If you need changes, describe them; otherwise type 'satisfied'"
+            "Review the code. If you need changes, describe them; otherwise type 'done'"
         )
-        if feedback.lower() == "satisfied":
+        if feedback.lower() == "done":
             satisfied = True
         else:
             # Modify the context with user feedback for further refinement
@@ -224,6 +212,59 @@ def modify_context_with_feedback(
     """
     updated_context = f"{context}\n\nFeedback: {feedback}\n\nModify the '{language}' code for '{feature}' accordingly."
     return updated_context
+
+
+import asyncio
+from textwrap import dedent
+
+import typer
+import pyperclip
+
+from utils.create_prompts import create_code  # Changed from create_python
+
+
+@app.command("bot")
+def update_code_code(
+    paste_code: bool = typer.Option(
+        False, "--paste", "-p", help="Paste code to update"
+    ),
+    language: str = typer.Option("code", "--language", "-l"),
+):  # Changed function name
+    if paste_code:
+        print(pyperclip.paste())
+        user_input = typer.prompt("How would you like this code updated?")
+        user_input = pyperclip.paste() + "\n\nUser: I would like to have " + user_input
+    else:
+        user_input = typer.prompt("What would you like for me to generate?")
+
+    asyncio.run(_update_code_code(user_input, language))  # Changed function call
+
+
+async def _update_code_code(user_input, language):  # Changed function name
+    print("Generating code snippet...", user_input, language)
+    code = user_input
+
+    code = await create_code(
+        prompt=code, language=language
+    )  # Changed from create_python
+
+    # Display code snippet details and ask for confirmation
+    confirmed = False
+    while not confirmed:
+        print(f"Code Snippet Details:\n{code}")
+
+        confirm = typer.prompt("Are these details correct? [y/N]")
+        if confirm.lower() in ["y", "yes"]:
+            confirmed = True
+        else:
+            # Re-prompt for details
+            update_prompt = f"{code}\nUser: {confirm}"
+            code = await create_code(
+                prompt=update_prompt, language=language
+            )  # Changed from create_python
+
+    pyperclip.copy(code)
+    print(f"Code copied to clipboard.")
 
 
 if __name__ == "__main__":

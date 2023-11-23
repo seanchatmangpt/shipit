@@ -14,8 +14,6 @@ import uuid
 delete = True
 
 
-
-
 # Create a new journal entry
 @require(lambda dtstamp: isinstance(dtstamp, datetime))
 @require(lambda dtstart: dtstart is None or isinstance(dtstart, datetime))
@@ -23,10 +21,20 @@ delete = True
 @require(lambda description: description is None or isinstance(description, str))
 @require(lambda calendar_id: calendar_id is None or isinstance(calendar_id, int))
 @ensure(lambda result: result.id is not None)
-def create_journal(dtstart: datetime = None, summary: str = None,
-                   description: str = None, calendar_id: int = None) -> Journal:
-    journal = Journal(uid=str(uuid.uuid4()), dtstamp=datetime.utcnow(), dtstart=dtstart, summary=summary, description=description,
-                      calendar_id=calendar_id)
+def create_journal(
+    dtstart: datetime = None,
+    summary: str = None,
+    description: str = None,
+    calendar_id: int = None,
+) -> Journal:
+    journal = Journal(
+        uid=str(uuid.uuid4()),
+        dtstamp=datetime.utcnow(),
+        dtstart=dtstart,
+        summary=summary,
+        description=description,
+        calendar_id=calendar_id,
+    )
     add_model(journal)
     return journal
 
@@ -45,9 +53,13 @@ def read_journal(journal_id: int) -> Journal:
 @require(lambda description: description is None or isinstance(description, str))
 @require(lambda calendar_id: calendar_id is None or isinstance(calendar_id, int))
 @ensure(lambda result: result is not None)
-def update_journal(journal_id: int,
-                   dtstart: datetime = None, summary: str = None, description: str = None,
-                   calendar_id: int = None) -> Journal:
+def update_journal(
+    journal_id: int,
+    dtstart: datetime = None,
+    summary: str = None,
+    description: str = None,
+    calendar_id: int = None,
+) -> Journal:
     with update_model(Journal, journal_id) as journal:
         journal.dtstamp = datetime.utcnow()
         if dtstart is not None:

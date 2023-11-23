@@ -76,7 +76,7 @@ def main():
     loaded_config = ShipitProjectConfig.load(
         Path(f"{temp_dir.name}/shipit_project.yaml")
     )
-    print(loaded_config)
+    # print(loaded_config)
 
 
 if __name__ == "__main__":

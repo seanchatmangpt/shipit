@@ -1,12 +1,16 @@
 import json
 import uuid
+from pathlib import Path
 
 import openai
 from dateutil import parser
 from icontract import require, ensure
+from slugify import slugify
 from sqlmodel import Field, SQLModel, Relationship, select
 from datetime import datetime
 from typing import Optional, List
+
+from tzlocal import get_localzone
 
 from shipit.cli import get_session, get_mem_store
 from utils.crud_tools import add_model, update_model, delete_model, get_model
@@ -42,15 +46,74 @@ class Event(SQLModel, table=True):
     calendar: Optional[Calendar] = Relationship(back_populates="events")
     alarms: List["Alarm"] = Relationship(back_populates="event")
 
+    def to_ics(self, file_path: Optional[str] = None) -> str:
+        """
+        Converts the event to iCalendar format with the user's local timezone.
+        """
+        # Get the user's local timezone
+        local_tz = get_localzone()
+
+        # Convert event start and end times to the user's local timezone
+        dtstart_local = self.dtstart.astimezone(local_tz)
+        dtend_local = self.dtend.astimezone(local_tz) if self.dtend else None
+
+        # Start the calendar
+        ics_str = "BEGIN:VCALENDAR\n"
+        ics_str += "VERSION:2.0\n"
+        ics_str += "PRODID:-//YourCompany//YourProduct//EN\n"  # Example Product ID
+
+        # Event details
+        ics_str += "BEGIN:VEVENT\n"
+        ics_str += f"UID:{self.uid}\n"
+        ics_str += f'DTSTAMP:{self.dtstamp.strftime("%Y%m%dT%H%M%SZ")}\n'
+        ics_str += f'DTSTART:{dtstart_local.strftime("%Y%m%dT%H%M%S")}\n'
+        if dtend_local:
+            ics_str += f'DTEND:{dtend_local.strftime("%Y%m%dT%H%M%S")}\n'
+        if self.summary:
+            ics_str += f"SUMMARY:{self.summary}\n"
+        if self.description:
+            ics_str += f"DESCRIPTION:{self.description}\n"
+        if self.location:
+            ics_str += f"LOCATION:{self.location}\n"
+        ics_str += "END:VEVENT\n"
+
+        # End the calendar
+        ics_str += "END:VCALENDAR\n"
+
+        # If path is a directory, save the ICS content to a file in that directory
+        # the file name will be the event slugged summary and dtstart with a .ics extension
+        if file_path and Path(file_path).is_dir():
+            file_name = (
+                f"{slugify(self.summary)}_{self.dtstart.strftime('%Y%m%dT%H%M%SZ')}.ics"
+            )
+            file_path = Path(file_path) / file_name
+            with open(file_path, "w") as f:
+                f.write(ics_str)
+        elif file_path:
+            with open(file_path, "w") as f:
+                f.write(ics_str)
+
+        return ics_str
+
     def __repr__(self):
-        return f"Event(id={self.id}, summary='{self.summary}', dtstart={self.dtstart}, " \
-               f"dtend={self.dtend}, duration={self.duration}, description='{self.description}', " \
-               f"location='{self.location}')"
+        return (
+            f"Event(id={self.id}, summary='{self.summary}', dtstart={self.dtstart}, "
+            f"dtend={self.dtend}, duration={self.duration}, description='{self.description}', "
+            f"location='{self.location}')"
+        )
 
     def __str__(self):
-        return f"Event(id={self.id}, summary='{self.summary}', dtstart='{str(self.dtstart)}', " \
-               f"dtend='{str(self.dtend)}', duration={self.duration}, description='{self.description}', " \
-               f"location='{self.location}')"
+        dtstart_str = self.dtstart.strftime("%I:%M%p on %A, %B %d, %Y")
+        dtend_str = (
+            self.dtend.strftime("%I:%M%p on %A, %B %d, %Y") if self.dtend else ""
+        )
+        return (
+            f"Summary:\t{self.summary}\n"
+            f"Start:\t\t{dtstart_str}\n"
+            f"End:\t\t{dtend_str}\n"
+            f"Description:\t{self.description}\n"
+            f"Location:\t{self.location}"
+        )
 
     @staticmethod
     @require(lambda dtstart: parser.parse(dtstart))
@@ -61,12 +124,12 @@ class Event(SQLModel, table=True):
     @require(lambda location: location is None or isinstance(location, str))
     @ensure(lambda result: result.id is not None)
     def create(
-            dtstart: str,
-            dtend: str = None,
-            duration: str = None,
-            summary: str = None,
-            description: str = None,
-            location: str = None,
+        dtstart: str,
+        dtend: str = None,
+        duration: str = None,
+        summary: str = None,
+        description: str = None,
+        location: str = None,
     ) -> "Event":
         uid = uuid.uuid4()
         uid_str = str(uid)
@@ -97,13 +160,13 @@ class Event(SQLModel, table=True):
     @require(lambda location: location is None or isinstance(location, str))
     # @ensure(lambda result: result.id is not None)
     def update(
-            event_id: int,
-            dtstart: str,
-            dtend: str = None,
-            duration: str = None,
-            summary: str = None,
-            description: str = None,
-            location: str = None,
+        event_id: int,
+        dtstart: str,
+        dtend: str = None,
+        duration: str = None,
+        summary: str = None,
+        description: str = None,
+        location: str = None,
     ):
         with update_model(Event, event_id) as event:
             event.dtstamp = datetime.utcnow()
@@ -131,24 +194,34 @@ class Event(SQLModel, table=True):
         return get_session().exec(select(Event).order_by(Event.dtstamp.asc())).first()
 
     @staticmethod
-    def get_by_page(page: int = 0, per_page: int = 10, sort: str = "dtstamp", asc: bool = True) -> List["Event"]:
+    def get_by_page(
+        page: int = 0,
+        per_page: int = 10,
+        sort: str = "dtstart",
+        asc: bool = True,
+        include_past: bool = False,
+    ) -> List["Event"]:
         """Get events by page sorted by"""
         order_by = getattr(Event, sort).asc() if asc else getattr(Event, sort).desc()
-        print(order_by, page, per_page, sort, asc)
-        return get_session().exec(
-            select(Event)
-            .order_by(order_by)
-            .offset(page * per_page)
-            .limit(per_page)
-        ).all()
+
+        query = select(Event).order_by(order_by)
+
+        if not include_past:
+            # Add a filter to exclude past events
+            query = query.filter(Event.dtstart >= datetime.now())
+
+        return get_session().exec(query.offset(page * per_page).limit(per_page)).all()
 
     @staticmethod
-    def query(text: str,
-              where: dict = None,
-              n_results: int = 10) -> List["Event"]:
+    def query(text: str, where: dict = None, n_results: int = 10) -> List["Event"]:
         """Query events"""
-        results = get_mem_store().query(collection_id="Event_collection", query=text, where=where, n_results=n_results)
-        result_ids = [json.loads(r)['id'] for r in results['documents'][0]]
+        results = get_mem_store().query(
+            collection_id="Event_collection",
+            query=text,
+            where=where,
+            n_results=n_results,
+        )
+        result_ids = [json.loads(r)["id"] for r in results["documents"][0]]
         models = get_session().exec(select(Event).where(Event.id.in_(result_ids))).all()
         # sort models by result_ids
         return sorted(models, key=lambda m: result_ids.index(m.id))

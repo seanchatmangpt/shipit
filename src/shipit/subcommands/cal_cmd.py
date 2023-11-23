@@ -16,7 +16,11 @@ from typer import Context
 
 from shipit.cli import get_mem_store
 from shipit.crud import *
-from utils.agent_tools import select_and_execute_function, choose_function, execute_function
+from utils.agent_tools import (
+    select_and_execute_function,
+    choose_function,
+    execute_function,
+)
 from utils.complete import acreate
 from utils.models import ok_models
 from utils.prompt_tools import prompt_map, prompt_dict
@@ -48,16 +52,21 @@ async def _chatbot(user_input):
     \n\n{user_input}\n
     """
 
-    responses = await prompt_map(questions, base_prompt=base_prompt,
-                                 # model_list=["text-davinci-003"],
-                                 suffix="\n```vevent\n",
-                                 stop=["\n"],
-                                 temperature=0.0)
+    responses = await prompt_map(
+        questions,
+        base_prompt=base_prompt,
+        # model_list=["text-davinci-003"],
+        suffix="\n```vevent\n",
+        stop=["\n"],
+        temperature=0.0,
+    )
 
     args = "\n".join(responses[1:])
 
-    prompt = f"You are a ICalendar Assistant. Today is {str(datetime.now())}\n" \
-             f"Current calendar.\n{user_input}.\nThese are the values for the keyword arguments.\n{args}"
+    prompt = (
+        f"You are a ICalendar Assistant. Today is {str(datetime.now())}\n"
+        f"Current calendar.\n{user_input}.\nThese are the values for the keyword arguments.\n{args}"
+    )
 
     function_list = [Event.create, Event.update, Event.delete]
 
@@ -80,14 +89,22 @@ async def _chatbot(user_input):
 async def _update_event(user_input):
     function_list = [Event.create, Event.update, Event.delete]
 
-    chosen_function = await choose_function(user_input=user_input, function_list=function_list)
+    chosen_function = await choose_function(
+        user_input=user_input, function_list=function_list
+    )
 
     print(chosen_function)
 
     chosen_event = Event.query(user_input)[0]
 
-    questions = {"dtstart": "New DTSTART", "dtend": "New DTEND", "duration": "New validated DURATION",
-                 "summary": "New SUMMARY is '", "description": "New DESCRIPTION is '", "location": "New LOCATION is '"}
+    questions = {
+        "dtstart": "New DTSTART",
+        "dtend": "New DTEND",
+        "duration": "New validated DURATION",
+        "summary": "New SUMMARY is '",
+        "description": "New DESCRIPTION is '",
+        "location": "New LOCATION is '",
+    }
 
     base_prompt = f"""You are a ICalendar Assistant. 
     Today is {str(datetime.now())}.
@@ -101,8 +118,7 @@ async def _update_event(user_input):
     
     """
 
-    responses = await prompt_dict(questions, base_prompt=base_prompt,
-                                  stop=["\n", "'"])
+    responses = await prompt_dict(questions, base_prompt=base_prompt, stop=["\n", "'"])
 
     correction_prompt = f"""You are a ICalendar Assistant.
     
@@ -115,7 +131,11 @@ async def _update_event(user_input):
     
     ```python\ncorrect_vevent_kwargs ={{"""
 
+    print(correction_prompt)
+
     corrected = await acreate(prompt=correction_prompt, stop=["\n\n"])
+
+    print(corrected)
 
     kwargs = ast.literal_eval("{" + corrected)
 
@@ -135,7 +155,6 @@ def chatbot():
     asyncio.run(_update_event(user_input))
 
 
-
 def create_test_events():
     now = datetime.now()
     events = [
@@ -148,7 +167,7 @@ def create_test_events():
             duration="1 hour",
             summary="Morning Standup Meeting",
             description="Daily team standup meeting to discuss current progress and tasks.",
-            location="Virtual Meeting Room"
+            location="Virtual Meeting Room",
         ),
         Event(
             id=2,
@@ -159,7 +178,7 @@ def create_test_events():
             duration="2 hours",
             summary="Code Review Session",
             description="Review recent code submissions and discuss improvements.",
-            location="Conference Room B"
+            location="Conference Room B",
         ),
         Event(
             id=3,
@@ -170,12 +189,10 @@ def create_test_events():
             duration="1 hour 30 minutes",
             summary="Development Workshop",
             description="Interactive workshop on new development techniques.",
-            location="Main Auditorium"
-        )
+            location="Main Auditorium",
+        ),
     ]
     return events
-
-
 
 
 @app.command("list")
@@ -195,7 +212,15 @@ def list_calendar_events(page: int = 0, page_size: int = 10):
 
 def print_events_as_csv(events):
     # Define the CSV file header and rows
-    header = ["id", "summary", "dtstart", "dtend", "duration", "description", "location"]
+    header = [
+        "id",
+        "summary",
+        "dtstart",
+        "dtend",
+        "duration",
+        "description",
+        "location",
+    ]
     rows = []
 
     for event in events:
@@ -211,7 +236,7 @@ def print_events_as_csv(events):
             dtend_str,
             event.duration,
             event.description,
-            event.location
+            event.location,
         ]
         rows.append(row)
 
@@ -229,6 +254,7 @@ def print_events_as_csv(events):
 
 if __name__ == "__main__":
     app()
+    # print(weeks())
 
 
 def weeks(total=4):

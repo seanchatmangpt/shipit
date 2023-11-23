@@ -8,14 +8,21 @@ from factory.faker import faker
 
 Faker = faker.Faker()
 
+
 # Database Fixtures
 @pytest.fixture(scope="session")
 def engine():
-    return create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    return create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+
 
 @pytest.fixture(scope="session")
 def create_all(engine):
     SQLModel.metadata.create_all(engine)
+
 
 @pytest.fixture()
 def session(engine, create_all):
@@ -48,7 +55,7 @@ class EventFactory(factory.Factory):
     summary = Faker.sentence()
     description = Faker.text()
     location = Faker.address()
-    calendar_id = factory.SelfAttribute('calendar.id')
+    calendar_id = factory.SelfAttribute("calendar.id")
     calendar = factory.SubFactory(CalendarFactory)
 
 
@@ -64,7 +71,7 @@ class TodoFactory(factory.Factory):
     summary = Faker.sentence()
     description = Faker.text()
     completed = Faker.boolean()
-    calendar_id = factory.SelfAttribute('calendar.id')
+    calendar_id = factory.SelfAttribute("calendar.id")
     calendar = factory.SubFactory(CalendarFactory)
 
 
@@ -78,7 +85,7 @@ class JournalFactory(factory.Factory):
     dtstart = Faker.date_time_this_year()
     summary = Faker.sentence()
     description = Faker.text()
-    calendar_id = factory.SelfAttribute('calendar.id')
+    calendar_id = factory.SelfAttribute("calendar.id")
     calendar = factory.SubFactory(CalendarFactory)
 
 
@@ -92,5 +99,5 @@ class AlarmFactory(factory.Factory):
     duration = str(Faker.time_delta())
     repeat = Faker.pyint()
     description = Faker.sentence()
-    event_id = factory.SelfAttribute('event.id')
+    event_id = factory.SelfAttribute("event.id")
     event = factory.SubFactory(EventFactory)

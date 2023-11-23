@@ -62,7 +62,7 @@ def create(config: LLMConfig = None, **kwargs):
     return response.choices[0].text.strip()
 
 
-async def acreate(config: LLMConfig = None, **kwargs):
+async def acreate(*, config: LLMConfig = None, **kwargs):
     if config:
         config.update(**kwargs)
         prompt = config.prompt

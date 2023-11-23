@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/shipit.iml" filepath="$PROJECT_DIR$/.idea/shipit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../smartlint/.idea/smartlint.iml" filepath="$PROJECT_DIR$/../smartlint/.idea/smartlint.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../test_agent/.idea/test_agent.iml" filepath="$PROJECT_DIR$/../test_agent/.idea/test_agent.iml" />
     </modules>
   </component>
 </project>

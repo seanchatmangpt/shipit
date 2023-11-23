@@ -1,4 +1,3 @@
-
 import chromadb
 from chromadb.config import Settings
 import hashlib
@@ -88,7 +87,9 @@ class ChromaMemStore:
             kwargs["where"] = where
         return collection.get(**kwargs)
 
-    def update(self, collection_id: str, doc_ids: list, documents: list, metadatas: list):
+    def update(
+        self, collection_id: str, doc_ids: list, documents: list, metadatas: list
+    ):
         """
         Update documents in the MemStore.
 

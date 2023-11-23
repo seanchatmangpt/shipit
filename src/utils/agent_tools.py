@@ -16,8 +16,10 @@ def interpret_with_openai(prompt: str) -> str:
 
 
 async def create_kwargs(prompt: str, required_args: List[str]) -> dict:
-    instructions = f"Based on the prompt: '{prompt}', create a dictionary of keyword arguments for the function called " \
-                   f"kwargs_dict\n```python\nkwargs_dict = "
+    instructions = (
+        f"Based on the prompt: '{prompt}', create a dictionary of keyword arguments for the function called "
+        f"kwargs_dict\n```python\nkwargs_dict = "
+    )
     # print(instructions)
     kwargs_dict = ast.literal_eval(create(prompt=instructions, stop=["```"]))
     # print(kwargs_dict)

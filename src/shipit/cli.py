@@ -1,4 +1,5 @@
 import os
+from lchop.tasks.adsc_tasks import *
 
 import typer
 from importlib import import_module
@@ -18,12 +19,17 @@ from sqlmodel import create_engine, SQLModel, Session, select
 
 # SQLModel.DEBUG = True
 
-DATABASE_URL = "sqlite:///./dev.db"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(current_dir, "dev.db")
+mem_store_path = os.path.join(current_dir, "mem_store")
+
+DATABASE_URL = f"sqlite:///{db_path}"
+
 engine = create_engine(DATABASE_URL)
 
 
 def get_mem_store():
-    return ChromaMemStore(".mem_store")
+    return ChromaMemStore(mem_store_path)
 
 
 def get_session():
@@ -50,12 +56,15 @@ load_subcommands()
 # - Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
 os.environ["TOKENIZERS_PARALLELISM"] = "(true | false)"
 
+
 @app.callback()
 def main(ctx: Context):
-
     config_file = Path().cwd() / "shipit_project.yaml"
     SQLModel.metadata.create_all(engine)
-    ctx.obj = {"config": ShipitProjectConfig.load(str(config_file)), "session": get_session()}
+    ctx.obj = {
+        "config": ShipitProjectConfig.load(str(config_file)),
+        "session": get_session(),
+    }
 
 
 @app.command()

@@ -105,7 +105,6 @@ from typing import Dict
 perfect_str_dict: Dict[str, str] = {{"""
     )
 
-
     result = await acreate(
         prompt=instructions,
         stop=["```", "\n\n"],
@@ -167,12 +166,12 @@ PRIMITIVE_TYPES = [int, float, str, bool, complex, bytes]
 @require(lambda prompt: isinstance(prompt, str))
 # Add a post-condition to ensure the result is of the correct type
 @ensure(
-    lambda result, expected_type: isinstance(result, expected_type),
+    lambda result, primitive_type: isinstance(result, primitive_type),
     "Result must match the expected type.",
 )
 async def create_python_primitive(
     prompt: str,
-    expected_type: Type[T],
+    primitive_type: Type[T],
     type_checker: Callable[[T], bool] = lambda x: True,
     **kwargs,
 ) -> T:
@@ -180,12 +179,12 @@ async def create_python_primitive(
     Create a Python primitive of the given type based on the prompt.
 
     :param prompt: The prompt for generating the Python primitive.
-    :param expected_type: The expected Python type of the primitive.
+    :param primitive_type: The expected Python type of the primitive.
     :param type_checker: A function to further validate the type.
     :return: A Python primitive of the given type.
     """
 
-    type_name = expected_type.__name__
+    type_name = primitive_type.__name__
 
     # General instructions based on type
     instructions = f"Create a Python {type_name} based on the prompt: '{prompt}'."
@@ -204,13 +203,12 @@ async def create_python_primitive(
         max_tokens=2000,
         **kwargs,
     )
-    print("result", result)
 
     # Safely evaluate to expected type
     try:
         evaluated_result = ast.literal_eval(result)
-        if not isinstance(evaluated_result, expected_type):
-            raise TypeError(f"Expected {expected_type}, got {type(evaluated_result)}.")
+        if not isinstance(evaluated_result, primitive_type):
+            raise TypeError(f"Expected {primitive_type}, got {type(evaluated_result)}.")
 
         # Additional type check if provided
         if not type_checker(evaluated_result):
@@ -219,9 +217,9 @@ async def create_python_primitive(
         return evaluated_result
     except (ValueError, SyntaxError, TypeError) as e:
         loguru.logger.warning(
-            f"Invalid {expected_type.__name__} generated: {e} {result}"
+            f"Invalid {primitive_type.__name__} generated: {e} {result}"
         )
-        fix_instructions = f"The {expected_type.__name__} generated earlier did not meet the specified requirements due to the following error: {e}. Please correct it."
+        fix_instructions = f"The {primitive_type.__name__} generated earlier did not meet the specified requirements due to the following error: {e}. Please correct it."
         corrected_result = await acreate(
             prompt=fix_instructions,
             stop=["```", "\n", " "],
@@ -235,7 +233,7 @@ async def create_python_primitive(
 
 # async def test_create_python_primitive():
 #     for ptype in PRIMITIVE_TYPES:
-#         result = await create_python_primitive(f"Create a {ptype.__name__}", expected_type=ptype)
+#         result = await create_python_primitive(f"Create a {ptype.__name__}", primitive_type=ptype)
 #         assert isinstance(result, ptype), f"Test failed for {ptype}, got {type(result)}"
 #         print(f"Successfully created {ptype}: {result}")
 
@@ -253,7 +251,7 @@ def is_odd(x: int) -> bool:
 
 
 # You would then call `create_python_primitive` like this:
-# await create_python_primitive("Create an even integer", expected_type=int, type_checker=is_even)
+# await create_python_primitive("Create an even integer", primitive_type=int, type_checker=is_even)
 
 
 class MaieuticPrompting:
@@ -271,7 +269,7 @@ class MaieuticPrompting:
         Using this definition, determine the logical integrity of the following statement:
         """
         prompt = prompt_context + statement
-        integrity_response = await create_python_primitive(prompt, expected_type=bool)
+        integrity_response = await create_python_primitive(prompt, primitive_type=bool)
         return integrity_response
 
     @require(lambda question: isinstance(question, str))

@@ -1,4 +1,5 @@
 import ast
+import inspect
 from textwrap import dedent
 
 import anyio
@@ -7,9 +8,15 @@ import loguru
 import pyperclip
 from icontract import require, ensure
 
+from adsc.models import Company, SWOTAnalysis, VRIO
 from typetemp.template.typed_template import TypedTemplate
 from utils.complete import acreate, achat
-from utils.create_primatives import create_list
+from utils.create_primatives import (
+    create_list,
+    create_python_primitive,
+    create_dict,
+    extract_dict,
+)
 from utils.file_tools import write, extract_code
 from utils.models import get_model
 
@@ -165,6 +172,44 @@ async def create_jinja(
     )
 
 
+create_code_template = """You are a {{ language }} PerfectProductionCode® assistant. Convert the prompt into code.
+
+```prompt
+{{ prompt }}
+```
+
+Here is your PerfectProductionCode® AGI {{ language }} response within triple backticks:
+"""
+
+
+async def create_code(
+    prompt, language="code", max_tokens=2500, model=None, filepath=None, temperature=0.7
+):
+    instructions = "Create a working example from this"  # await spr(prompt, encode=False, max_tokens=100)
+    print(instructions)
+    create_prompt = TypedTemplate(
+        source=create_code_template,
+        language=language,
+        prompt=f"{instructions} {prompt}",
+    )()
+
+    return await __create(
+        prompt=create_prompt,
+        filepath=filepath,
+        md_type=language,
+        model=model,
+        max_tokens=max_tokens,
+        temperature=temperature,
+    )
+
+
+__create_template = """
+{{prompt}}
+```{{md_type}} (Here is your PerfectPythonProductionCode® AGI response within triple backticks)
+{{suffix}}
+"""
+
+
 create_python_template = """
 Objective:
 Transform the given input (whether it's Python code, project documentation, or another form of structured data) 
@@ -214,13 +259,15 @@ async def __create(
     filepath=None,
     temperature=0.0,
     stop=None,
-    suffix=None,
+    suffix="",
 ):
     model = get_model(model)
 
     create_prompt = TypedTemplate(
         source=__create_template, prompt=prompt, md_type=md_type, suffix=suffix
     )()
+
+    print(create_prompt)
 
     result = await acreate(
         prompt=create_prompt,
@@ -229,8 +276,8 @@ async def __create(
         max_tokens=max_tokens,
         temperature=temperature,
     )
-    # loguru.logger.info(f"Prompt: {result}")
-    # loguru.logger.info(f"Result: {result}")
+    print(f"Prompt: {result}")
+    print(f"Result: {result}")
 
     if filepath:
         await write(contents=result, filename=filepath)
@@ -426,7 +473,7 @@ async def create_evo(
     return result
 
 
-async def main():
+async def main2():
     satisfy = """Recent efforts have augmented large language models (LLMs) with external resources (e.g., 
     the Internet) or internal control flows (e.g., prompt chaining) for tasks requiring grounding or reasoning, 
     leading to a new class of language agents. While these agents have achieved substantial empirical success, 
@@ -467,5 +514,152 @@ async def gen_evo():
     evo = await create_evo(action_space, filepath="action_space_evo.yaml")
 
 
+create_tailwind_landing_template = """You are a Web Design Assistant. You take the prompt and generate a landing page.
+Do not reference yourself or anything other than what is contained within the prompt.
+
+The design must be modern, with a fresh and professional color scheme that aligns with industry standards (blues, yellows, and whites).
+Use large, readable typography and include visually appealing separators between sections. No images.
+
+The page should be fully responsive, ensuring a seamless experience on all devices, including tablets and smartphones.
+
+Ensure the design follows best practices for web accessibility, 
+such as alt text for visual elements, keyboard navigation, and proper contrast ratios.
+
+```prompt
+{{ prompt }}
+```
+
+```html
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <title>{{ title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+"""
+
+
+async def create_tailwind_landing(
+    prompt="",
+    max_tokens=2500,
+    model=None,
+    filepath=None,
+    temperature=0.0,
+    title="Landing Page",
+):
+    create_prompt = TypedTemplate(
+        source=create_tailwind_landing_template, prompt=prompt, title=title
+    )()
+
+    landing = await __create(
+        prompt=create_prompt,
+        md_type="html",
+        model=model,
+        max_tokens=max_tokens,
+        temperature=temperature,
+    )
+
+    markup = f"""<!DOCTYPE html>
+         <html lang="en">
+         <head>
+           <meta charset="UTF-8">
+           <title>Landing page</title>
+           <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"></head><body>"""
+    markup += landing
+
+    if filepath:
+        with open(filepath, "w") as f:
+            f.write(markup)
+
+
+@require(lambda prompt: isinstance(prompt, str))
+@require(lambda cls: issubclass(cls, object))
+@ensure(lambda result, cls: isinstance(result, dict))
+async def create_data(prompt: str, cls: type) -> dict:
+    """
+    Create a dict of data from a prompt that can be passed to the given class as kwargs
+    """
+
+    instructions = dedent(
+        f"""
+    Create a Python dict that contains data corresponding to the class {cls.__name__} based on the prompt.
+    Do not add any additional information to the dict. Only use the information provided in the prompt.
+    This is going to be used to create an instance of {cls.__name__}. It will crash if you add any additional information.
+    Only use python primitives (str, int, float, bool, list, dict, tuple, set, None).
+    Provide values for all the fields in the class. If a field is a list, provide at least one value.
+    After the dictionary, provide a doctoral thesis explaining your thought process.
+
+    ```python
+    {inspect.getsource(cls)}
+    ```
+
+    ```prompt
+    {prompt}
+    ```
+
+    Complete the following code block:
+    ```python
+    # kwargs for {cls.__name__}
+    PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
+    PrimitiveDict = Dict[str, PrimitiveType]
+    
+    # I have made sure there are only primitives in the dict, no classes or functions.
+    {cls.__name__.lower()}_dict: PrimitiveDict = {{"""
+    )
+
+    print(instructions)
+    result = await acreate(
+        prompt=instructions,
+        stop=["```", "\n\n"],
+        max_tokens=3000,
+    )
+
+    # Safely evaluate to expected type
+    try:
+        extracted_dict = extract_dict("{" + result.replace("\n", ""))
+
+        if not isinstance(extracted_dict, dict):
+            raise TypeError(f"Expected dict, got {type(extracted_dict)}.")
+
+        return extracted_dict
+    except (SyntaxError, TypeError) as e:
+        loguru.logger.warning(f"Invalid {cls.__name__} generated: {e} {result}")
+        fix_instructions = f"""You are a Python dict fixing assistant.
+        Please fix the following dict so that it can be used to
+        create an instance of {cls.__name__}:\n\n{result}\n\n
+        
+        ```python                  
+        PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
+        PrimitiveDict = Dict[str, PrimitiveType]
+    
+        # I have made sure there are only primitives in the dict, no classes or functions.
+        {cls.__name__.lower()}_dict: PrimitiveDict = {{)"""
+
+        corrected_result = await acreate(
+            prompt=fix_instructions,
+            stop=["```"],
+            max_tokens=2000,
+        )
+        return extract_dict("{" + corrected_result.replace("\n", ""))
+
+
+import anyio
+
+
+async def main():
+    prompt = """ADSC is a key Scriptcase Partner for Canada. Scriptcase is a strong
+    Business Intelligence & Web Application Code Generator platform used by
+    thousands of users in over 140 countries globally that can supercharge &
+    empower your web applications. Access corporate data securely on the web.
+    ADSC can provide licenses/ development/training.
+
+    Make the values extremely verbose and detailed. Do not use any abbreviations."""
+    data = await create_data(prompt, VRIO)
+    # data = await create_data(prompt, SWOTAnalysis)
+    print(data)
+
+
 if __name__ == "__main__":
-    anyio.run(gen_evo)
+    anyio.run(main)

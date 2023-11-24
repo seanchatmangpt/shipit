@@ -142,7 +142,7 @@ perfect_str_dict: Dict[str, str] = {{"""
 
 def extract_dict(input_str: str) -> dict:
     # Safely evaluate the input string to generate the dictionary, ensuring all keys and values are strings
-    input_str = autopep8.fix_code(input_str)
+    input_str = autopep8.fix_code(input_str).strip()
     extracted_dict = ast.literal_eval(input_str)
     return extracted_dict
 

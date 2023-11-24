@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Interface</title>
+</head>
+<body>
+    <h1>Hello, {{ user_name }}!</h1>
+    <p>Welcome to our website.</p>
+    <p>Here are some of your account details:</p>
+    <ul>
+        <li>Username: {{ user_name }}</li>
+        <li>Email: {{ user_email }}</li>
+        <li>Membership Level: {{ user_level }}</li>
+    </ul>
+    {% if user_level == 'premium' %}
+        <p>Thank you for being a premium member! Here are some extra features available to you:</p>
+        <ul>
+            <li>Special discounts on products</li>
+            <li>Access to exclusive content</li>
+        </ul>
+    {% endif %}
+</body>
+</html>

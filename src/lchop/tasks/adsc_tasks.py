@@ -178,7 +178,11 @@ async def create_landing_page_CI_AI_services(
 ):
     logger.info(f"Executing task: create_landing_page_CI_AI_services")
 
-    # Task-specific code here...
+    landing_prompt = f"""
+    ADSC relaunching two services: Ethical Competitive Intelligence Services and Generative AI Services. Keep track of Competitors, Customers, Prospects, Vendors, and external forces. CI is about positioning and predicting better next moves than anyone else. ADSC uses Generative AI for CI, Sales & Marketing agents, and can create other custom Generative AI based Agents. Landing Page: summary, contact info, catchy for professional audience. Call to action: free half-hour consultation to supercharge sales and marketing processes. Landing Page with different forms based on questions. First question: have they ever been blind-sided by a competitor or lost out unexpectedly? HTML generated for Landing Page/Form.
+    """
+
+    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/ci_ai_services.html")
 
     return {
         "success": True,
@@ -192,7 +196,14 @@ async def generate_follow_up_forms(
 ):
     logger.info(f"Executing task: generate_follow_up_forms")
 
-    # Task-specific code here...
+    landing_prompt = f"""
+    This is a process that collects information from users through a series of questions and then provides them with a 
+    competitive analysis of their top five competitors. The analysis is presented in chart form and users are asked 
+    to provide their knowledge about each competitor. Users are also given the option to request a free half hour 
+    consultation. 
+    """
+
+    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/follow_up_forms.html")
 
     return {
         "success": True,
@@ -235,7 +246,12 @@ async def confirm_interest_in_consultation(
 ):
     logger.info(f"Executing task: confirm_interest_in_consultation")
 
-    # Task-specific code here...
+    landing_prompt = f"""
+thanking them for their inquiry and confirming that we will help to make them more competitive
+    """
+
+    # await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/confirm.html")
+
 
     return {
         "success": True,
@@ -249,7 +265,60 @@ async def rewrite_ethical_CI_webpage(
 ):
     logger.info(f"Executing task: rewrite_ethical_CI_webpage")
 
-    # Task-specific code here...
+    landing_prompt = f"""
+We all need to somehow use rubber-hits-the-road real-world understanding of what’s going on right now.
+
+Unfortunately, the prospects & clients you speak to might not necessarily always be as forth coming as you might wish.
+
+And competitors will want to be cagey around you to protect their interests.
+
+And nothing else that can affect your business is usually just simple. Everything in a complex market is complicated. Finding meaning in that kind of environment can be quite challenging.
+
+Add to this the growing trend by governments worldwide to increase privacy and now things have gotten more complicated.
+
+You can use the Internet. However, there have been lawsuits written about publicly for those that trespassed on competitor’s websites.
+
+And even knowing what to look at that might be relevant can for many groups starting from scratch or even enhancing an existing Competitive Intelligence program be a real issue.
+
+So, there are a number of challenges including those above & others. Next let’s take a look at solutions.
+
+Solutions That Can Make A Holistic Difference
+
+There is a deep & rich & very powerful way of knowing what’s going on that might affect your business.
+
+There are three things that we can teach about & also alternatively support on that might make a serious knowledge acquisition difference:
+
+OSI – Open-Source Intelligence. The use of publicly available information to provide points of information that when taken together might yield some insight.
+The Use of Front-Line Personnel. Using front-line personnel can yield information that otherwise might be missed & can be extremely valuable to the whole insight process.
+Advanced Analysis Techniques. If a business is small enough sophisticated manual analysis techniques might suffice. For any company of size, the use of analytics (automated means of analysis) from easy-to-use Data Science platforms to Generative AI can make a difference. And we can suggest how to use such technologies whether from costly commercial offerings or free open-source software.
+You might be wondering how that all these might fit together?
+
+The Hidden Numbers Between The Words People Use Can Make All The Difference.
+
+What numbers might we be referring to?
+
+Not everything is obvious. But when you experience things in the right way it might be obvious as to its meaning.
+
+We take a statistical, approach to this.
+
+When there are different words or phrases, or events within a sales or marketing/customer success/support cycle that occur that repeat, these can be used as forensic clues as to what the meaning in the moment actually is.
+
+So, when we hear repeating words or phrases or experience from some kind of significant event, we can quickly record this. And it can be quite useful.
+
+A good example is that when we hear from a client or prospect that their budgets are frozen for a 60day period what they are usually saying without saying overtly (about 90% or more of the time), is that they are being acquired, we can then use tools & OSI to discover who might be acquiring them & sell into their bosses’ bosses.
+
+This kind of scenario becomes a pattern, which is a kind of niche KPI. Essentially, we find an obstacle & by the recognition of this obstruction & by the recognition of it’s existence we gain a path to mitigate risk & over come it.
+
+There are many other patterns & anti-patterns that we’ve discovered over the years. So, life quite often functions in a patterned or in other words relatively discernable organized repeating way. The repetitions might be different & connected to other repeating patterns. But the essentials are there. We can discern some meaning from something significant occurring.
+
+The patterns may be too big or too small for us to easily see & understand.
+
+So, that’s where using analytics of different sorts can be extremely useful.
+
+        """
+
+    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/ethical_ci.html")
+
 
     return {
         "success": True,
@@ -263,7 +332,33 @@ async def develop_generative_AI_mini_website(
 ):
     logger.info(f"Executing task: develop_generative_AI_mini_website")
 
-    # Task-specific code here...
+    page_one = """Generative AI, also known as generative adversarial networks (GANs) or transformer models like GPT-3, is a groundbreaking technology that has transformed various fields. It enables machines to generate content, such as text, images, and even videos, that is often indistinguishable from human-created content. This technology relies on large datasets and advanced algorithms to learn and mimic the patterns, styles, and structures present in the training data.
+
+The power of generative AI lies in its ability to create realistic and diverse content. In the context of text generation, it can be used to automate content creation, assist with creative writing, generate human-like responses in chatbots, and even aid in language translation. However, it also raises ethical and privacy concerns, as it can potentially be used to create fake news, deepfakes, and other forms of disinformation."""
+    page_two = """Custom generative AI agents refer to AI systems that are tailored to specific tasks or domains. These agents are trained on specialized datasets and fine-tuned to excel in particular applications. For example, in healthcare, custom generative AI agents can be developed to generate medical reports, assist in diagnosis, or even simulate patient interactions for medical training.
+
+The advantage of custom generative AI agents is their ability to provide highly specialized and accurate results within their domain. However, /Users/candacechatman/dev/shipit/building and fine-tuning these agents often require substantial expertise and domain-specific data."""
+    page_three = """Synthetic data is artificially generated data that simulates real-world data. Generative AI plays a crucial role in creating synthetic data by mimicking the statistical patterns and structures of actual data. This synthetic data can be used for various purposes, including training machine learning models, testing algorithms, and ensuring data privacy.
+
+One of the key advantages of synthetic data is that it allows organizations to work with sensitive or confidential information without exposing real data. It is particularly valuable in industries like healthcare and finance, where data privacy regulations are stringent. Additionally, synthetic data can be generated at scale, providing researchers and data scientists with a versatile tool for experimentation."""
+    page_four = """Privacy compliance is a critical aspect of data management, especially in the age of AI and data-driven decision-making. Generative AI can both pose privacy challenges and offer solutions for privacy compliance.
+
+On one hand, generative AI can be used to anonymize data by generating synthetic versions of sensitive data, ensuring that individuals' personal information remains protected while still allowing for meaningful analysis. On the other hand, there are concerns that generative AI can be used maliciously to de-anonymize data or create fake identities.
+
+Navigating the complex landscape of privacy compliance in the context of AI requires a deep understanding of data protection regulations and responsible AI practices."""
+    page_five = """Internal custom agents refer to AI systems designed for specific internal business operations within an organization. These agents can streamline workflows, automate repetitive tasks, and enhance decision-making processes.
+
+For example, an internal custom agent in a customer service department might use natural language processing (NLP) to analyze customer inquiries and provide automated responses or route inquiries to the appropriate department. In manufacturing, custom AI agents can optimize supply chain logistics, predict equipment maintenance needs, and improve quality control.
+
+These agents are tailored to the unique needs and processes of an organization, leveraging AI to increase efficiency and productivity. However, their development and integration require a deep understanding of the organization's operations and data flows.
+
+In summary, generative AI and custom AI agents have the potential to transform various aspects of our lives, from content generation to data privacy and internal operations. While they offer significant benefits, their responsible development and use are essential to address ethical, privacy, and security concerns."""
+
+    await create_tailwind_landing(prompt=page_one, filepath="/Users/candacechatman/dev/shipit/build/page_one.html")
+    await create_tailwind_landing(prompt=page_two, filepath="/Users/candacechatman/dev/shipit/build/page_two.html")
+    await create_tailwind_landing(prompt=page_three, filepath="/Users/candacechatman/dev/shipit/build/page_three.html")
+    await create_tailwind_landing(prompt=page_four, filepath="/Users/candacechatman/dev/shipit/build/page_four.html")
+    await create_tailwind_landing(prompt=page_five, filepath="/Users/candacechatman/dev/shipit/build/page_five.html")
 
     return {
         "success": True,
@@ -271,38 +366,14 @@ async def develop_generative_AI_mini_website(
     }
 
 
-"""
-# Importing libraries
-import anyio
-import httpx
-import trio
-
-# Function to call duck duck go search n times using anyio task group
-async def duck_duck_go_search_n_times(n):
-    # Creating a task group
-    async with anyio.create_task_group() as task_group:
-        # Running the task group n times
-        for i in range(n):
-            # Calling the search function in a new task
-            await task_group.spawn(search, i)
-
-# Function to perform the search
-async def search(i):
-    # Creating a client
-    async with httpx.AsyncClient() as client:
-        # Performing a GET request to duck duck go
-        response = await client.get("https://duckduckgo.com/")
-        # Printing the response
-        print(f"Response {i}: {response}")
-
-# Calling the function to search 10 times
-trio.run(duck_duck_go_search_n_times, 10)
-"""
-
-
 async def main():
     # await competitive_analysis_ADSC(work_ctx=None, services=None, revenue_threshold=None)
-    await analyze_competitors(None, None)
+    # await create_landing_page_CI_AI_services(None, emphasize_CI=None, target_audience=None, call_to_action=None)
+    # await generate_follow_up_forms(None, description=None, question_types=None, response_based_branching=None)
+    # await create_synthetic_data_landing_page(None, focus_on_synthetic_data=None, saas_potential_explanation=None)
+    # await confirm_interest_in_consultation(None, response_type=None, reasons_count=None)
+    # await rewrite_ethical_CI_webpage(None, source_url=None, target_format=None, audience_focus=None)
+    await develop_generative_AI_mini_website(None, pages_count=None, focus_areas=None, wordpress_compatibility=None)
 
 
 if __name__ == "__main__":

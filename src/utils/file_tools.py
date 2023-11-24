@@ -8,63 +8,56 @@ import openai
 import yaml
 from icontract import require, ensure
 
+from utils.complete import acreate
 from utils.models import get_model
 
 
-# async def generate_extension(
-#         prompt,
-#         prefix="",
-#         suffix="",
-#         min_chars=30,
-#         max_chars=60,
-#         char_limit=300,
-#         time_stamp=False,
-#         **completion_kwargs
-# ) -> str:
-#     prompt = prompt[:char_limit]
-#
-#     completion_prompt = (
-#         f"Generate an appropriate file extension based on the text: '{prompt}'. "
-#     )
-#
-#     await acreate(prompt=completion_prompt)
-#
-#
-#
-#     extension = response.choices[0].text.strip()
-#
-#     # Post-process the extension
-#     extension = re.sub(r"[^a-zA-Z0-9_]", "", extension)
-#
-#     file_name = ""
-#     if prefix:
-#         file_name = f"{prefix}_{file_name}"
-#
-#     if suffix:
-#         file_name = f"{file_name}_{suffix}"
-#
-#     if time_stamp:
-#         file_name = f"{file_name}_{strftime('%Y-%m-%d_%H-%M-%S', gmtime())}"
-#
-#     if extension:
-#         file_name = f"{file_name}.{extension}"
-#
-#     return file_name
+@require(lambda prompt: isinstance(prompt, str))
+@ensure(lambda result: isinstance(result, str))
+async def gen_extension(
+                            prompt,
+                            min_chars=20,
+                            max_chars=60,
+                            char_limit=300,
+                            time_stamp=False,
+                            **completion_kwargs,
+                            ) -> str:
+    prompt = prompt[:char_limit]
+
+    completion_prompt = (
+        f"Generate a concise filename based on the text: '{prompt}'. "
+        f"The filename should:\n"
+        f"- Be in lowercase letters.\n"
+        f"- Have at least {min_chars} characters.\n"
+        f"- Have at most {max_chars} characters.\n"
+        f"- Use underscores as separators.\n"
+        "Suggested filename:"
+    )
+
+    filename = await acreate(
+        model=get_model("3i"),
+        prompt=completion_prompt,
+        temperature=0,
+        max_tokens=max_chars * 2,
+        stop=["\n"],
+    )
+
+    return filename.split(".")[-1]
 
 
 @require(lambda prompt: isinstance(prompt, str))
 @ensure(lambda result: isinstance(result, str))
 async def generate_filename(
-    prompt,
-    prefix="",
-    suffix="",
-    extension="txt",
-    min_chars=20,
-    max_chars=60,
-    char_limit=300,
-    time_stamp=False,
-    **completion_kwargs,
-) -> str:
+                            prompt,
+                            prefix="",
+                            suffix="",
+                            extension="txt",
+                            min_chars=20,
+                            max_chars=60,
+                            char_limit=300,
+                            time_stamp=False,
+                            **completion_kwargs,
+                            ) -> str:
     prompt = prompt[:char_limit]
 
     completion_prompt = (
@@ -78,7 +71,7 @@ async def generate_filename(
         "Suggested filename:"
     )
 
-    response = await openai.Completion.acreate(
+    filename = await acreate(
         model=get_model("3i"),
         prompt=completion_prompt,
         temperature=0,
@@ -86,25 +79,23 @@ async def generate_filename(
         stop=["\n"],
     )
 
-    file_name = response.choices[0].text.strip()
-
     # Post-process the filename
-    file_name = re.sub(r"[^a-zA-Z0-9_]", "", file_name)
-    file_name = file_name[:max_chars]
+    filename = re.sub(r"[^a-zA-Z0-9_]", "", filename)
+    filename = filename[:max_chars]
 
     if prefix:
-        file_name = f"{prefix}_{file_name}"
+        filename = f"{prefix}_{filename}"
 
     if suffix:
-        file_name = f"{file_name}_{suffix}"
+        filename = f"{filename}_{suffix}"
 
     if time_stamp:
-        file_name = f"{file_name}_{strftime('%Y-%m-%d_%H-%M-%S', gmtime())}"
+        filename = f"{filename}_{strftime('%Y-%m-%d_%H-%M-%S', gmtime())}"
 
     if extension:
-        file_name = f"{file_name}.{extension}"
+        filename = f"{filename}.{extension}"
 
-    return file_name
+    return filename
 
 
 def extract_filename(text: str, allowed_extensions=None) -> str:
@@ -151,9 +142,9 @@ async def read(filename, to_type=None):
     return contents
 
 
-async def write(
-    contents=None, filename=None, mode="w+", extension="txt", time_stamp=False, path=""
-):
+async def write(*,
+                contents=None, filename=None, mode="w+", extension="txt", time_stamp=False, path=""
+                ):
     if extension == "yaml" or extension == "yml":
         contents = yaml.dump(
             contents, default_style="", default_flow_style=False, width=1000
@@ -180,7 +171,7 @@ def extract_code(text: str) -> str:
 
     # Concatenate all the code blocks together with double newline separators.
     concatenated_code = "\n\n".join(
-        [code[code.index("\n") + 1 :] for code in text_code]
+        [code[code.index("\n") + 1:] for code in text_code]
     )
 
     return concatenated_code

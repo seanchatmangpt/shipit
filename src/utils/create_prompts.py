@@ -1,6 +1,7 @@
 import ast
 import inspect
 from textwrap import dedent
+from typing import Callable
 
 import anyio
 import inflection
@@ -19,6 +20,7 @@ from utils.create_primatives import (
 )
 from utils.file_tools import write, extract_code
 from utils.models import get_model
+from utils.radon_workbench import fix_code
 
 
 async def create_domain_model_from_yaml(
@@ -267,7 +269,7 @@ async def __create(
         source=__create_template, prompt=prompt, md_type=md_type, suffix=suffix
     )()
 
-    print(create_prompt)
+    # print(create_prompt)
 
     result = await acreate(
         prompt=create_prompt,
@@ -276,8 +278,8 @@ async def __create(
         max_tokens=max_tokens,
         temperature=temperature,
     )
-    print(f"Prompt: {result}")
-    print(f"Result: {result}")
+    # print(f"Prompt: {result}")
+    # print(f"Result: {result}")
 
     if filepath:
         await write(contents=result, filename=filepath)
@@ -514,7 +516,7 @@ async def gen_evo():
     evo = await create_evo(action_space, filepath="action_space_evo.yaml")
 
 
-create_tailwind_landing_template = """You are a Web Design Assistant. You take the prompt and generate a landing page.
+create_tailwind_landing_template = """Take the prompt and generate a landing page.
 Do not reference yourself or anything other than what is contained within the prompt.
 
 The design must be modern, with a fresh and professional color scheme that aligns with industry standards (blues, yellows, and whites).
@@ -549,6 +551,10 @@ async def create_tailwind_landing(
     temperature=0.0,
     title="Landing Page",
 ):
+    prompt = await acreate(prompt=f"Convert into a PRD for a landing page for {prompt}\n\n```prd\n", stop=["```"])
+
+    print(prompt)
+
     create_prompt = TypedTemplate(
         source=create_tailwind_landing_template, prompt=prompt, title=title
     )()
@@ -645,10 +651,155 @@ async def create_data(prompt: str, cls: type) -> dict:
         return extract_dict("{" + corrected_result.replace("\n", ""))
 
 
+@require(lambda prompt: isinstance(prompt, str))
+@require(lambda cabal: isinstance(cabal, Callable))
+@ensure(lambda result, cls: isinstance(result, dict))
+async def create_kwargs(prompt: str, cabal: Callable) -> dict:
+    """
+    Create a dict of data from a prompt that can be passed to the given class as kwargs
+    """
+
+    instructions = dedent(
+        f"""
+    Create a Python dict that contains data corresponding to the kwargs {cabal.__name__} based on the prompt.
+    Do not add any additional information to the dict. Only use the information provided in the prompt.
+    This is going to be used to call of {cabal.__name__}. It will crash if you add any additional information.
+    Only use python primitives (str, int, float, bool, list, dict, tuple, set, None).
+    Provide values for all the fields in the class. If a field is a list, provide at least one value.
+    After the dictionary, provide a doctoral thesis explaining your thought process.
+
+    ```python
+    {inspect.getsource(cabal)}
+    ```
+
+    ```prompt
+    {prompt}
+    ```
+
+    Complete the following code block:
+    ```python
+    # kwargs for {cabal.__name__}
+    PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
+    PrimitiveDict = Dict[str, PrimitiveType]
+
+    # I have made sure there are only primitives in the dict, no classes or functions.
+    {cabal.__name__.lower()}_kwargs_dict: PrimitiveDict = {{"""
+    )
+
+    print(instructions)
+    result = await acreate(
+        prompt=instructions,
+        stop=["```", "\n\n"],
+        max_tokens=250,
+    )
+
+    # Safely evaluate to expected type
+    try:
+        extracted_dict = extract_dict("{" + result.replace("\n", ""))
+
+        if not isinstance(extracted_dict, dict):
+            raise TypeError(f"Expected dict, got {type(extracted_dict)}.")
+
+        return extracted_dict
+    except (SyntaxError, ValueError, TypeError) as e:
+        loguru.logger.warning(f"Invalid {cabal.__name__} generated: {e} {result}")
+        fix_instructions = f"""You are a Python dict fixing assistant.
+        Please fix the following dict so that it can be used to
+        create an instance of {cabal.__name__}:\n\n{result}\n\n
+
+        ```python                  
+        PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
+        PrimitiveDict = Dict[str, PrimitiveType]
+
+        # I have made sure there are only primitives in the dict, no classes or functions.
+        {cabal.__name__.lower()}_dict: PrimitiveDict = {{"""
+
+        corrected_result = await acreate(
+            prompt=fix_instructions,
+            stop=["```"],
+            max_tokens=250,
+        )
+       return extract_dict("{" + corrected_result.replace("\n", ""))
+
+
+async def create_pydantic_class(prompt: str, class_name: str = None, min_fields=2, max_fields=5, file_path=None) -> str:
+    """
+    Generate a Pydantic class based on a prompt.
+    Args:
+        prompt (str): The prompt describing the class fields.
+        class_name (str): The name for the generated Pydantic class.
+    Returns:
+        type: The generated Pydantic class.
+    """
+    if not class_name:
+        name_prompt = f"""You are a Pydantic class naming assistant.
+        Be Descriptive: Choose a name that describes what the model represents. For example, User, BlogPost, Invoice. Avoid generic names like Data or Model.
+Be Specific: Pick specific names over broad ones when possible. BlogPost is better than Post, InvoiceItem over Item.
+Use Capitalized Camel Case: Follow PEP8 convention of CapWords for model names - BasicAuth not basicAuth.
+Consider the Module Name: Names should be unique within a module. Prefix with parent name if reuse possible - accounts.User vs posts.User.
+Keep Names Unique: Add suffixes like BlogPostIn, BlogPostOut if class represents different forms of same entity.
+Avoid Abbreviations: Spell names out fully for clarity - Request rather than Req.
+Be Consistent with Domain Language: Use the same terminology as your core business domain.
+Limit Name Length: Long names reduce readability. Try to keep under 3 words, 20 chars.
+Use Pluralization Judiciously: Generally prefer singular - Order vs Orders.
+Follow Conventions if Industry Standard: Sometimes best to align with widely used terms.
+
+Choose a name for this prompt
+```prompt
+{prompt}
+```
+
+The name is: """
+        class_name = await acreate(prompt=name_prompt, max_tokens=100)
+        print("The name is: ", class_name)
+
+    print(class_name)
+    instructions = dedent(
+        f"""You are a expert Pydantic class assistant.
+        
+        Define a Pydantic class `{class_name}` with the on the prompt:
+        
+        Only use python primitives (str, int, float, bool, list, dict, tuple, set, None) for the fields.
+        
+        The class should have between {min_fields} and {max_fields} fields. It will crash if you do not follow constraints.
+
+        ```prompt
+        {prompt}
+        ```
+        
+        Complete the following code block, make sure to stay within constraints:
+        ```python
+        # I have made sure there are only primitives in the dict, no classes or functions.
+        # I have made sure there are {min_fields} to {max_fields} fields.
+        from pydantic import BaseModel
+        
+        class {class_name}(BaseModel):
+            '''The total number of fields is"""
+    )
+
+    result = await acreate(
+        prompt=instructions,
+        stop=["```"],
+        max_tokens=2000,
+    )
+
+    cls_code = f"""from pydantic import BaseModel\n\n
+    class {class_name}(BaseModel):\n{result}"""
+
+    cls_code = fix_code(cls_code)
+
+    if file_path:
+        await write(contents=cls_code, filename=file_path)
+
+    return cls_code
+
+
+
+
 import anyio
 
 
-async def main():
+async def main2():
     prompt = """ADSC is a key Scriptcase Partner for Canada. Scriptcase is a strong
     Business Intelligence & Web Application Code Generator platform used by
     thousands of users in over 140 countries globally that can supercharge &
@@ -656,10 +807,31 @@ async def main():
     ADSC can provide licenses/ development/training.
 
     Make the values extremely verbose and detailed. Do not use any abbreviations."""
-    data = await create_data(prompt, VRIO)
-    # data = await create_data(prompt, SWOTAnalysis)
-    print(data)
+    # data = await create_data(prompt, VRIO)
+    # # data = await create_data(prompt, SWOTAnalysis)
+    # print(data)
+    cls = await create_pydantic_class(prompt, "ADSC", file_path="adsc_model.py")
+    print(cls)
 
+
+async def main():
+    from utils.file_tools import gen_extension
+
+    # await write(contents=result)
+    # await gen_extension(result)
+    template = """<!DOCTYPE html>
+    <html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <h1>{{ header }}</h1>
+        <p>Welcome, {{ name }}!</p>
+        <p>Today is {{ date }}.</p>
+    </body>
+    </html>"""
+    cls = await create_pydantic_class(template)
+    print(cls)
 
 if __name__ == "__main__":
     anyio.run(main)

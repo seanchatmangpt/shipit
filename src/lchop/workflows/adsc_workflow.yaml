@@ -17,12 +17,6 @@ tasks:
       target_audience: ["Marketing Leaders", "Company Leaders", "Software Developers", "Technical People", "Consultants", "Competitive Intelligence Leaders"]
       call_to_action: "Free half-hour consultation"
 
-  - name: "generate_follow_up_forms"
-    description: "Generate follow-up forms based on the initial landing page interactions."
-    kwargs:
-      question_types: ["company_insight", "competitor_analysis"]
-      response_based_branching: True
-
   - name: "create_synthetic_data_landing_page"
     description: "Develop a landing page about ADSC's use of synthetic data in custom generative AI agents."
     kwargs:

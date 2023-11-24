@@ -63,7 +63,7 @@ def check_for_bugs_with_metrics(source_code: str, metrics: dict) -> str:
     return response
 
 
-def fix_code(code: str, error: str = "") -> str:
+def fix_code(code: str, error: str = "", max_tokens=2000) -> str:
     """
     Use GPT-3.5-turbo to fix the code.
     """
@@ -79,7 +79,7 @@ def fix_code(code: str, error: str = "") -> str:
     prompt += f"Code:\n```\n{code}\n```\n\n```python\n# Here is your PerfectPythonProductionCode® AGI fixed code\n"
 
     # Make the API call
-    response = create(prompt=prompt, stop=["\n```"], max_tokens=2100)
+    response = create(prompt=prompt, stop=["\n```"], max_tokens=max_tokens)
 
     # Get the response from GPT-3.5-turbo
     fixed_code = response

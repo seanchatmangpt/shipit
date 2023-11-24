@@ -1,9 +1,10 @@
 import ast
 import inspect
-from typing import List, Callable
+from typing import List, Callable, Any
 
 from utils.complete import create, acreate
 from utils.create_primatives import create_dict
+from utils.create_prompts import create_kwargs
 
 
 def interpret_with_openai(prompt: str) -> str:
@@ -15,26 +16,7 @@ def interpret_with_openai(prompt: str) -> str:
     return response.strip()
 
 
-async def create_kwargs(prompt: str, required_args: List[str]) -> dict:
-    instructions = (
-        f"Based on the prompt: '{prompt}', create a dictionary of keyword arguments for the function called "
-        f"kwargs_dict\n```python\nkwargs_dict = "
-    )
-    # print(instructions)
-    kwargs_dict = ast.literal_eval(create(prompt=instructions, stop=["```"]))
-    # print(kwargs_dict)
-    try:
-        if isinstance(kwargs_dict, dict):
-            # Check if all required arguments are present
-            missing_args = [arg for arg in required_args if arg not in kwargs_dict]
-            if missing_args:
-                raise ValueError(f"Missing required arguments: {missing_args}")
-            return kwargs_dict
-        else:
-            raise ValueError("Response is not a valid dictionary.")
-    except (ValueError, SyntaxError) as e:
-        print(f"Error in create_kwargs: {e}")
-        raise
+
 
 
 async def choose_function(user_input: str, function_list: list):
@@ -61,8 +43,8 @@ async def choose_function(user_input: str, function_list: list):
     raise ValueError("No suitable function found.")
 
 
-async def select_and_execute_function(user_input: str, function_list: List[Callable]):
-    selected_function = choose_function(user_input, function_list)
+async def select_and_execute_function(instructions: str, function_list: List[Callable]) -> Any | None:
+    selected_function = await choose_function(instructions, function_list)
     function_signature = inspect.signature(selected_function)
     required_args = [
         param.name
@@ -72,11 +54,29 @@ async def select_and_execute_function(user_input: str, function_list: List[Calla
 
     source = inspect.getsource(selected_function)
 
-    prompt_for_kwargs = f"The user has input {user_input}.\n\nCreate the kwargs dictionary for the function based on the user input\n\nFunction:\n{source}"
+    prompt_for_kwargs = f"""You are a Function Execution Assistant.
+    Here are your instructions:
+    ```instructions
+    {instructions}.
+    ```
+    Create the kwargs dictionary for the function based on the user input
+    
+    Function:
+    {source}"""
 
-    kwargs = await create_kwargs(prompt_for_kwargs, required_args)
+    kwargs = await create_kwargs(prompt_for_kwargs, selected_function)
     try:
-        selected_function(**kwargs)
+        # If the selected function is a coroutine, await it
+        print(f"Executing function: {selected_function.__name__}, is coroutine: {inspect.iscoroutinefunction(selected_function)}, kwargs: {kwargs}")
+
+        if inspect.iscoroutinefunction(selected_function):
+            result = await selected_function(**kwargs)
+            print(f"Result: {result}")
+            return result
+        else:
+            result = await selected_function(**kwargs)
+            print(f"Result: {result}")
+            return result
     except TypeError as e:
         print(f"Error when calling the function: {e}")
 
@@ -93,7 +93,7 @@ async def execute_function(user_input: str, function: Callable):
 
     prompt_for_kwargs = f"The user has input {user_input}.\n\nCreate the kwargs dictionary for the function based on the user input\n\nFunction:\n{source}"
 
-    kwargs = await create_kwargs(prompt_for_kwargs, required_args)
+    kwargs = await create_kwargs(prompt_for_kwargs, function)
     try:
         return function(**kwargs)
     except TypeError as e:

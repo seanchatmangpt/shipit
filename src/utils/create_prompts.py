@@ -719,7 +719,7 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
             stop=["```"],
             max_tokens=250,
         )
-       return extract_dict("{" + corrected_result.replace("\n", ""))
+        return extract_dict("{" + corrected_result.replace("\n", ""))
 
 
 async def create_pydantic_class(prompt: str, class_name: str = None, min_fields=2, max_fields=5, file_path=None) -> str:

@@ -15,13 +15,13 @@ from utils.models import get_model
 @require(lambda prompt: isinstance(prompt, str))
 @ensure(lambda result: isinstance(result, str))
 async def gen_extension(
-                            prompt,
-                            min_chars=20,
-                            max_chars=60,
-                            char_limit=300,
-                            time_stamp=False,
-                            **completion_kwargs,
-                            ) -> str:
+    prompt,
+    min_chars=20,
+    max_chars=60,
+    char_limit=300,
+    time_stamp=False,
+    **completion_kwargs,
+) -> str:
     prompt = prompt[:char_limit]
 
     completion_prompt = (
@@ -48,16 +48,16 @@ async def gen_extension(
 @require(lambda prompt: isinstance(prompt, str))
 @ensure(lambda result: isinstance(result, str))
 async def generate_filename(
-                            prompt,
-                            prefix="",
-                            suffix="",
-                            extension="txt",
-                            min_chars=20,
-                            max_chars=60,
-                            char_limit=300,
-                            time_stamp=False,
-                            **completion_kwargs,
-                            ) -> str:
+    prompt,
+    prefix="",
+    suffix="",
+    extension="txt",
+    min_chars=20,
+    max_chars=60,
+    char_limit=300,
+    time_stamp=False,
+    **completion_kwargs,
+) -> str:
     prompt = prompt[:char_limit]
 
     completion_prompt = (
@@ -142,9 +142,15 @@ async def read(filename, to_type=None):
     return contents
 
 
-async def write(*,
-                contents=None, filename=None, mode="w+", extension="txt", time_stamp=False, path=""
-                ):
+async def write(
+    contents=None,
+    *,
+    filename=None,
+    mode="w+",
+    extension="txt",
+    time_stamp=False,
+    path="",
+):
     if extension == "yaml" or extension == "yml":
         contents = yaml.dump(
             contents, default_style="", default_flow_style=False, width=1000
@@ -171,11 +177,29 @@ def extract_code(text: str) -> str:
 
     # Concatenate all the code blocks together with double newline separators.
     concatenated_code = "\n\n".join(
-        [code[code.index("\n") + 1:] for code in text_code]
+        [code[code.index("\n") + 1 :] for code in text_code]
     )
 
     return concatenated_code
 
+
+import re
+
+
+def slugify(text):
+    # Convert the text to lowercase
+    text = text.lower()
+
+    # Replace spaces with hyphens and remove other non-alphanumeric characters
+    text = re.sub(r'[^a-z0-9-]', '', text)
+
+    # Replace multiple consecutive hyphens with a single hyphen
+    text = re.sub(r'[-]+', '-', text)
+
+    # Remove leading and trailing hyphens
+    text = text.strip('-')
+
+    return text
 
 # project root directory
 # Path: src/utils/file_tools.py

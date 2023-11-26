@@ -7,22 +7,19 @@ from random import randint
 from typing import Optional
 from factory.faker import faker
 
+from shipit.models import Event
+
 Faker = faker.Faker()
 
 import typer
 
-from sqlmodel import select
-from typer import Context
 
-from shipit.cli import get_mem_store
 from shipit.crud import *
 from utils.agent_tools import (
-    select_and_execute_function,
     choose_function,
     execute_function,
 )
 from utils.complete import acreate
-from utils.models import ok_models
 from utils.prompt_tools import prompt_map, prompt_dict
 
 app = typer.Typer()

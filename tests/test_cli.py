@@ -2,7 +2,6 @@ import subprocess
 
 import pytest
 from typer.testing import CliRunner
-from shipit.cli import app
 from unittest.mock import patch
 from shipit.shipit_project_config import ShipitProjectConfig
 

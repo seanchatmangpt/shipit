@@ -12,7 +12,7 @@ from typing import Optional, List
 
 from tzlocal import get_localzone
 
-from shipit.cli import get_session, get_mem_store
+from shipit.data import get_session, get_mem_store
 from utils.crud_tools import add_model, update_model, delete_model, get_model
 
 

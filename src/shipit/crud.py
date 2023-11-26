@@ -1,15 +1,12 @@
-from datetime import datetime
 from typing import List
 
-from sqlmodel import Session
 from icontract import require, ensure
 
-from shipit.cli import get_session
-from shipit.models import Event, Journal
-
-from dateutil import parser
+from shipit.models import Journal
 
 import uuid
+
+from utils.crud_tools import *
 
 delete = True
 

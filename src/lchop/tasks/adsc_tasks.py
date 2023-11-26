@@ -182,7 +182,10 @@ async def create_landing_page_CI_AI_services(
     ADSC relaunching two services: Ethical Competitive Intelligence Services and Generative AI Services. Keep track of Competitors, Customers, Prospects, Vendors, and external forces. CI is about positioning and predicting better next moves than anyone else. ADSC uses Generative AI for CI, Sales & Marketing agents, and can create other custom Generative AI based Agents. Landing Page: summary, contact info, catchy for professional audience. Call to action: free half-hour consultation to supercharge sales and marketing processes. Landing Page with different forms based on questions. First question: have they ever been blind-sided by a competitor or lost out unexpectedly? HTML generated for Landing Page/Form.
     """
 
-    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/ci_ai_services.html")
+    await create_tailwind_landing(
+        prompt=landing_prompt,
+        filepath="/Users/candacechatman/dev/shipit/build/ci_ai_services.html",
+    )
 
     return {
         "success": True,
@@ -203,7 +206,10 @@ async def generate_follow_up_forms(
     consultation. 
     """
 
-    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/follow_up_forms.html")
+    await create_tailwind_landing(
+        prompt=landing_prompt,
+        filepath="/Users/candacechatman/dev/shipit/build/follow_up_forms.html",
+    )
 
     return {
         "success": True,
@@ -251,7 +257,6 @@ thanking them for their inquiry and confirming that we will help to make them mo
     """
 
     # await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/confirm.html")
-
 
     return {
         "success": True,
@@ -317,8 +322,10 @@ So, that’s where using analytics of different sorts can be extremely useful.
 
         """
 
-    await create_tailwind_landing(prompt=landing_prompt, filepath="/Users/candacechatman/dev/shipit/build/ethical_ci.html")
-
+    await create_tailwind_landing(
+        prompt=landing_prompt,
+        filepath="/Users/candacechatman/dev/shipit/build/ethical_ci.html",
+    )
 
     return {
         "success": True,
@@ -354,11 +361,24 @@ These agents are tailored to the unique needs and processes of an organization, 
 
 In summary, generative AI and custom AI agents have the potential to transform various aspects of our lives, from content generation to data privacy and internal operations. While they offer significant benefits, their responsible development and use are essential to address ethical, privacy, and security concerns."""
 
-    await create_tailwind_landing(prompt=page_one, filepath="/Users/candacechatman/dev/shipit/build/page_one.html")
-    await create_tailwind_landing(prompt=page_two, filepath="/Users/candacechatman/dev/shipit/build/page_two.html")
-    await create_tailwind_landing(prompt=page_three, filepath="/Users/candacechatman/dev/shipit/build/page_three.html")
-    await create_tailwind_landing(prompt=page_four, filepath="/Users/candacechatman/dev/shipit/build/page_four.html")
-    await create_tailwind_landing(prompt=page_five, filepath="/Users/candacechatman/dev/shipit/build/page_five.html")
+    await create_tailwind_landing(
+        prompt=page_one, filepath="/Users/candacechatman/dev/shipit/build/page_one.html"
+    )
+    await create_tailwind_landing(
+        prompt=page_two, filepath="/Users/candacechatman/dev/shipit/build/page_two.html"
+    )
+    await create_tailwind_landing(
+        prompt=page_three,
+        filepath="/Users/candacechatman/dev/shipit/build/page_three.html",
+    )
+    await create_tailwind_landing(
+        prompt=page_four,
+        filepath="/Users/candacechatman/dev/shipit/build/page_four.html",
+    )
+    await create_tailwind_landing(
+        prompt=page_five,
+        filepath="/Users/candacechatman/dev/shipit/build/page_five.html",
+    )
 
     return {
         "success": True,
@@ -373,7 +393,9 @@ async def main():
     # await create_synthetic_data_landing_page(None, focus_on_synthetic_data=None, saas_potential_explanation=None)
     # await confirm_interest_in_consultation(None, response_type=None, reasons_count=None)
     # await rewrite_ethical_CI_webpage(None, source_url=None, target_format=None, audience_focus=None)
-    await develop_generative_AI_mini_website(None, pages_count=None, focus_areas=None, wordpress_compatibility=None)
+    await develop_generative_AI_mini_website(
+        None, pages_count=None, focus_areas=None, wordpress_compatibility=None
+    )
 
 
 if __name__ == "__main__":

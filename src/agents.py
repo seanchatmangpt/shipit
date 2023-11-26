@@ -18,11 +18,15 @@ class Agent(BaseModel):
         func_names = [func.__name__ for func in self.functions]
         model_names = [model.__name__ for model in self.models]
 
-        return f"Agent ID: {self.agent_id}\nFunctions: {func_names}\nModels: {model_names}"
+        return (
+            f"Agent ID: {self.agent_id}\nFunctions: {func_names}\nModels: {model_names}"
+        )
 
     async def execute(self, instructions: str) -> Any | None:
         # Execute the instructions on the agent
-        result = await select_and_execute_function(f"{instructions} {self.persona}", self.functions)
+        result = await select_and_execute_function(
+            f"{instructions} {self.persona}", self.functions
+        )
         await write(contents=result)
         return result
 
@@ -78,14 +82,20 @@ class Orchestrator:
         async with anyio.create_task_group() as tg:
             suitable_agents = []
             for agent in self.agents:
-                tg.start_soon(self.evaluate_agent, agent, task_description, suitable_agents)
+                tg.start_soon(
+                    self.evaluate_agent, agent, task_description, suitable_agents
+                )
 
         if suitable_agents:
-            return suitable_agents[0]  # or any logic to select one from the suitable agents
+            return suitable_agents[
+                0
+            ]  # or any logic to select one from the suitable agents
         else:
             raise ValueError("No suitable agent found.")
 
-    async def evaluate_agent(self, agent: Agent, task_description: str, suitable_agents: list):
+    async def evaluate_agent(
+        self, agent: Agent, task_description: str, suitable_agents: list
+    ):
         if await self.is_suitable(agent, task_description):
             suitable_agents.append(agent)
 
@@ -94,33 +104,40 @@ class Orchestrator:
         prompts = []
         for function in agent.functions:
             source = inspect.getsource(function)
-            docstring = function.__doc__ if function.__doc__ else "No docstring provided."
+            docstring = (
+                function.__doc__ if function.__doc__ else "No docstring provided."
+            )
             prompts.append(
                 f"Function: {function.__name__}\nDocstring: {docstring.strip()}\nSource:\n{source}"
             )
 
-        combined_prompt = "\n\n".join(prompts) + f"\n\nTask description: {task_description}\nIs this agent suitable or False?"
+        combined_prompt = (
+            "\n\n".join(prompts)
+            + f"\n\nTask description: {task_description}\nIs this agent suitable or False?"
+        )
         selected_function_name = await acreate(prompt=combined_prompt)
         print(f"Selected function: {selected_function_name}")
 
         return selected_function_name != "False"
 
 
-
-
-
 import anyio
+
+
+
 
 async def main():
     yaml_specialist = Agent(agent_id="YamlAssistant", functions=[create_yaml])
     jinja_specialist = Agent(agent_id="JinjaAssistant", functions=[create_jinja])
     python_coder = Agent(agent_id="PythonAssistant", functions=[create_python])
-    pydantic_coder = Agent(agent_id="PydanticAssistant", functions=[create_pydantic_class])
+    pydantic_coder = Agent(
+        agent_id="PydanticAssistant", functions=[create_pydantic_class]
+    )
     # ... other agents ...
 
     team_agents = [yaml_specialist, jinja_specialist, python_coder, pydantic_coder]
     orchestrator = Orchestrator(team_agents)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     anyio.run(main)

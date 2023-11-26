@@ -9,7 +9,8 @@ app = typer.Typer(help="David's ShipIt Subcommands")
 
 
 @app.command("spr")
-def sparse_priming(paste_code: bool = typer.Option(
+def sparse_priming(
+    paste_code: bool = typer.Option(
         True, "--paste", "-p", help="Paste code to update", is_flag=True
     ),
     max_tokens: int = typer.Option(250, "--max-tokens", "-m"),

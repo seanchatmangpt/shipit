@@ -1,5 +1,9 @@
+import datetime
 import random
+from typing import List
+
 from itertools import cycle
+from pydantic import BaseModel
 
 gpt_4_models = [
     "gpt-4",
@@ -195,3 +199,27 @@ if __name__ == "__main__":
     import asyncio
 
     asyncio.run(main())
+
+class User(BaseModel):
+    name: str
+    email: str
+
+class Email(BaseModel):
+    id: str
+    subject: str
+    body: str
+    from_address: str
+    to: List[str]
+    cc: List[str] = []
+    bcc: List[str] = []
+    date: datetime.datetime
+
+class MailingList(BaseModel):
+    name: str
+    members: List[User]
+    emails: List[Email] = []
+
+class UnixEmailSystem(BaseModel):
+    hostname: str
+    mailing_lists: List[MailingList] = []
+    users: List[User] = []

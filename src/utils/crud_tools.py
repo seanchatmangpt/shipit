@@ -2,7 +2,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 
-from shipit.cli import get_session, get_mem_store
+from shipit.data import *
 
 from contextlib import contextmanager
 

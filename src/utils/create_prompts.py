@@ -1,5 +1,7 @@
 import ast
 import inspect
+import json
+from json import JSONDecodeError
 from textwrap import dedent
 from typing import Callable
 
@@ -551,7 +553,10 @@ async def create_tailwind_landing(
     temperature=0.0,
     title="Landing Page",
 ):
-    prompt = await acreate(prompt=f"Convert into a PRD for a landing page for {prompt}\n\n```prd\n", stop=["```"])
+    prompt = await acreate(
+        prompt=f"Convert into a PRD for a landing page for {prompt}\n\n```prd\n",
+        stop=["```"],
+    )
 
     print(prompt)
 
@@ -589,13 +594,10 @@ async def create_data(prompt: str, cls: type) -> dict:
     """
 
     instructions = dedent(
-        f"""
-    Create a Python dict that contains data corresponding to the class {cls.__name__} based on the prompt.
-    Do not add any additional information to the dict. Only use the information provided in the prompt.
+        f"""Create a JSON response that contains data corresponding to the class {cls.__name__} based on the prompt.
+    The json loads like this: json.loads(response)
     This is going to be used to create an instance of {cls.__name__}. It will crash if you add any additional information.
-    Only use python primitives (str, int, float, bool, list, dict, tuple, set, None).
-    Provide values for all the fields in the class. If a field is a list, provide at least one value.
-    After the dictionary, provide a doctoral thesis explaining your thought process.
+    After the JSON, provide a doctoral thesis explaining your thought process.
 
     ```python
     {inspect.getsource(cls)}
@@ -605,14 +607,9 @@ async def create_data(prompt: str, cls: type) -> dict:
     {prompt}
     ```
 
-    Complete the following code block:
-    ```python
-    # kwargs for {cls.__name__}
-    PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
-    PrimitiveDict = Dict[str, PrimitiveType]
-    
-    # I have made sure there are only primitives in the dict, no classes or functions.
-    {cls.__name__.lower()}_dict: PrimitiveDict = {{"""
+    Complete the following JSON response:
+    ```json
+    {{"""
     )
 
     print(instructions)
@@ -624,31 +621,27 @@ async def create_data(prompt: str, cls: type) -> dict:
 
     # Safely evaluate to expected type
     try:
-        extracted_dict = extract_dict("{" + result.replace("\n", ""))
+        extracted_dict = json.loads("{" + result.replace("\n", ""))
 
         if not isinstance(extracted_dict, dict):
             raise TypeError(f"Expected dict, got {type(extracted_dict)}.")
 
         return extracted_dict
-    except (SyntaxError, TypeError) as e:
+    except (SyntaxError, TypeError, JSONDecodeError) as e:
         loguru.logger.warning(f"Invalid {cls.__name__} generated: {e} {result}")
-        fix_instructions = f"""You are a Python dict fixing assistant.
-        Please fix the following dict so that it can be used to
+        fix_instructions = dedent(f"""You are a JSON fixing assistant.
+        Please fix the following json so that it can be used to
         create an instance of {cls.__name__}:\n\n{result}\n\n
         
-        ```python                  
-        PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
-        PrimitiveDict = Dict[str, PrimitiveType]
-    
-        # I have made sure there are only primitives in the dict, no classes or functions.
-        {cls.__name__.lower()}_dict: PrimitiveDict = {{)"""
+        ```json
+        {{""")
 
         corrected_result = await acreate(
             prompt=fix_instructions,
             stop=["```"],
             max_tokens=2000,
         )
-        return extract_dict("{" + corrected_result.replace("\n", ""))
+        return json.loads("{" + corrected_result.replace("\n", ""))
 
 
 @require(lambda prompt: isinstance(prompt, str))
@@ -661,12 +654,11 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
 
     instructions = dedent(
         f"""
-    Create a Python dict that contains data corresponding to the kwargs {cabal.__name__} based on the prompt.
-    Do not add any additional information to the dict. Only use the information provided in the prompt.
+    Create a JSON object that contains data corresponding to the kwargs {cabal.__name__} based on the prompt.
+    Do not add any additional information to the JSON. Only use the information provided in the prompt.
     This is going to be used to call of {cabal.__name__}. It will crash if you add any additional information.
-    Only use python primitives (str, int, float, bool, list, dict, tuple, set, None).
-    Provide values for all the fields in the class. If a field is a list, provide at least one value.
-    After the dictionary, provide a doctoral thesis explaining your thought process.
+    Provide values for all the fields in the class. 
+    After the JSON, provide a doctoral thesis explaining your thought process.
 
     ```python
     {inspect.getsource(cabal)}
@@ -677,14 +669,8 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
     ```
 
     Complete the following code block:
-    ```python
-    # kwargs for {cabal.__name__}
-    PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
-    PrimitiveDict = Dict[str, PrimitiveType]
-
-    # I have made sure there are only primitives in the dict, no classes or functions.
-    {cabal.__name__.lower()}_kwargs_dict: PrimitiveDict = {{"""
-    )
+    ```json
+    {{""")
 
     print(instructions)
     result = await acreate(
@@ -701,28 +687,27 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
             raise TypeError(f"Expected dict, got {type(extracted_dict)}.")
 
         return extracted_dict
-    except (SyntaxError, ValueError, TypeError) as e:
+    except (SyntaxError, TypeError, JSONDecodeError) as e:
         loguru.logger.warning(f"Invalid {cabal.__name__} generated: {e} {result}")
-        fix_instructions = f"""You are a Python dict fixing assistant.
-        Please fix the following dict so that it can be used to
-        create an instance of {cabal.__name__}:\n\n{result}\n\n
+        fix_instructions = dedent(f"""You are a JSON fixing assistant.
+            Please fix the following json so that it can be used to
+            create kwargs:
+            {result}
 
-        ```python                  
-        PrimitiveType = Union[str, int, float, bool, list, dict, tuple, set, None]
-        PrimitiveDict = Dict[str, PrimitiveType]
-
-        # I have made sure there are only primitives in the dict, no classes or functions.
-        {cabal.__name__.lower()}_dict: PrimitiveDict = {{"""
+            ```json
+            {{""")
 
         corrected_result = await acreate(
             prompt=fix_instructions,
             stop=["```"],
-            max_tokens=250,
+            max_tokens=2000,
         )
-        return extract_dict("{" + corrected_result.replace("\n", ""))
+        return json.loads("{" + corrected_result.replace("\n", ""))
 
 
-async def create_pydantic_class(prompt: str, class_name: str = None, min_fields=2, max_fields=5, file_path=None) -> str:
+async def create_pydantic_class(
+    prompt: str, class_name: str = None, min_fields=2, max_fields=5, file_path=None
+) -> str:
     """
     Generate a Pydantic class based on a prompt.
     Args:
@@ -794,6 +779,35 @@ The name is: """
     return cls_code
 
 
+create_git_patch_template = """You are a git patch assistant. Create a git patch from the prompt.
+The format is the same as if running the command `git format-patch -1 HEAD`. 
+After the patch, provide a doctoral thesis explaining your thought process.
+    
+```prompt
+{{ prompt }}
+```
+
+"""
+
+
+async def create_git_patch(prompt: str, max_tokens=2500, model=None, filepath=None):
+    """
+    Generate a git patch based on a prompt.
+    """
+    create_prompt = TypedTemplate(source=create_git_patch_template, prompt=prompt)()
+
+    result = await __create(
+        prompt=create_prompt,
+        md_type="git",
+        model=model,
+        max_tokens=max_tokens,
+        suffix="From",
+    )
+
+    if filepath:
+        await write(contents=result, filename=filepath)
+
+    return result
 
 
 import anyio
@@ -832,6 +846,7 @@ async def main():
     </html>"""
     cls = await create_pydantic_class(template)
     print(cls)
+
 
 if __name__ == "__main__":
     anyio.run(main)

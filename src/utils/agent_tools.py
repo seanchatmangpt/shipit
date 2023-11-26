@@ -1,22 +1,8 @@
-import ast
 import inspect
 from typing import List, Callable, Any
 
-from utils.complete import create, acreate
-from utils.create_primatives import create_dict
+from utils.complete import acreate
 from utils.create_prompts import create_kwargs
-
-
-def interpret_with_openai(prompt: str) -> str:
-    # print(prompt)
-    response = create(
-        prompt=prompt
-    )  # Assuming 'create' is a wrapper for OpenAI API call
-    # print(response)
-    return response.strip()
-
-
-
 
 
 async def choose_function(user_input: str, function_list: list):
@@ -43,7 +29,9 @@ async def choose_function(user_input: str, function_list: list):
     raise ValueError("No suitable function found.")
 
 
-async def select_and_execute_function(instructions: str, function_list: List[Callable]) -> Any | None:
+async def select_and_execute_function(
+    instructions: str, function_list: List[Callable]
+) -> Any | None:
     selected_function = await choose_function(instructions, function_list)
     function_signature = inspect.signature(selected_function)
     required_args = [
@@ -67,7 +55,9 @@ async def select_and_execute_function(instructions: str, function_list: List[Cal
     kwargs = await create_kwargs(prompt_for_kwargs, selected_function)
     try:
         # If the selected function is a coroutine, await it
-        print(f"Executing function: {selected_function.__name__}, is coroutine: {inspect.iscoroutinefunction(selected_function)}, kwargs: {kwargs}")
+        print(
+            f"Executing function: {selected_function.__name__}, is coroutine: {inspect.iscoroutinefunction(selected_function)}, kwargs: {kwargs}"
+        )
 
         if inspect.iscoroutinefunction(selected_function):
             result = await selected_function(**kwargs)
@@ -82,13 +72,6 @@ async def select_and_execute_function(instructions: str, function_list: List[Cal
 
 
 async def execute_function(user_input: str, function: Callable):
-    function_signature = inspect.signature(function)
-    required_args = [
-        param.name
-        for param in function_signature.parameters.values()
-        if param.default is param.empty
-    ]
-
     source = inspect.getsource(function)
 
     prompt_for_kwargs = f"The user has input {user_input}.\n\nCreate the kwargs dictionary for the function based on the user input\n\nFunction:\n{source}"

@@ -18,11 +18,15 @@ class Agent(BaseModel):
         func_names = [func.__name__ for func in self.functions]
         model_names = [model.__name__ for model in self.models]
 
-        return f"Agent ID: {self.agent_id}\nFunctions: {func_names}\nModels: {model_names}"
+        return (
+            f"Agent ID: {self.agent_id}\nFunctions: {func_names}\nModels: {model_names}"
+        )
 
     async def execute(self, instructions: str) -> Any | None:
         # Execute the instructions on the agent
-        result = await select_and_execute_function(f"{instructions} {self.persona}", self.functions)
+        result = await select_and_execute_function(
+            f"{instructions} {self.persona}", self.functions
+        )
         await write(contents=result)
         return result
 
@@ -78,28 +82,34 @@ class Orchestrator:
         async with anyio.create_task_group() as tg:
             suitable_agents = []
             for agent in self.agents:
-                tg.start_soon(self.evaluate_agent, agent, task_description, suitable_agents)
+                tg.start_soon(
+                    self.evaluate_agent, agent, task_description, suitable_agents
+                )
 
         if suitable_agents:
-            return suitable_agents[0]  # or any logic to select one from the suitable agents
+            return suitable_agents[
+                0
+            ]  # or any logic to select one from the suitable agents
         else:
             raise ValueError("No suitable agent found.")
 
-    async def evaluate_agent(self, agent: Agent, task_description: str, suitable_agents: list):
+    async def evaluate_agent(
+        self, agent: Agent, task_description: str, suitable_agents: list
+    ):
         if await self.is_suitable(agent, task_description):
             suitable_agents.append(agent)
 
     @staticmethod
     async def is_suitable(agent: Agent, task_description: str) -> bool:
-        combined_prompt = agent.persona + f"\n\nTask description: {task_description}\nIs this agent suitable or False?"
+        combined_prompt = (
+            agent.persona
+            + f"\n\nTask description: {task_description}\nIs this agent suitable or False?"
+        )
         print("combined prompt:", combined_prompt)
         selected_function_name = await acreate(prompt=combined_prompt)
         print(f"Selected agent: {agent.agent_id}")
 
         return selected_function_name != "False"
-
-
-
 
 
 import anyio
@@ -109,7 +119,9 @@ async def main():
     yaml_specialist = Agent(agent_id="YamlAssistant", functions=[create_yaml])
     jinja_specialist = Agent(agent_id="JinjaAssistant", functions=[create_jinja])
     python_coder = Agent(agent_id="PythonAssistant", functions=[create_python])
-    pydantic_coder = Agent(agent_id="PydanticAssistant", functions=[create_pydantic_class])
+    pydantic_coder = Agent(
+        agent_id="PydanticAssistant", functions=[create_pydantic_class]
+    )
     # ... other agents ...
 
     team_agents = [jinja_specialist, python_coder, pydantic_coder]
@@ -118,7 +130,7 @@ async def main():
     while True:
         task_description = "pizza api"  # input("Enter your website creation task description (or 'exit' to quit): ")
 
-        if task_description.lower() == 'exit':
+        if task_description.lower() == "exit":
             break
 
         selected_agent = await orchestrator.choose_agent(task_description)
@@ -133,5 +145,5 @@ async def main():
         pyperclip.copy(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     anyio.run(main)

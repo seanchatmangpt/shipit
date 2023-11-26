@@ -1,0 +1,5 @@
+Hello, world!
+This is file2.
+Adding multiple lines
+to demonstrate
+a multi-file patch.

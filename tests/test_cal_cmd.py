@@ -5,7 +5,6 @@ from typer.testing import CliRunner
 from datetime import datetime, timedelta
 from sqlmodel import SQLModel, create_engine, Session
 from shipit.models import Event  # Replace with your actual models import
-from shipit.cli import app
 
 runner = CliRunner()
 

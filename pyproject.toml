@@ -37,7 +37,7 @@ factory-boy = "^3.3.0"
 python-dateutil = "^2.8.2"
 pytz = "^2023.3.post1"
 tzlocal = "^5.2"
-chromadb = "0.4.17"
+chromadb = "0.4.18"
 munch = "^4.0.0"
 pyppeteer = "^1.0.2"
 sismic = "^1.6.6"
@@ -52,7 +52,7 @@ python-multipart = "^0.0.6"
 email-validator = "^2.1.0.post1"
 typer-di = "0.1.2a2"
 scipy = "^1.11.4"
-pulsar-client = "3.0.0"
+pulsar-client = "3.3.0"
 
 [tool.poetry.group.test.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 coverage = { extras = ["toml"], version = ">=7.2.5" }

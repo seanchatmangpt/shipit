@@ -1,6 +1,7 @@
 from typing import List, Dict
 from pydantic import BaseModel, EmailStr
 
+
 class UnixEmailSystem(BaseModel):
     users: Dict[EmailStr, List[str]] = {}
     mailing_lists: Dict[str, List[EmailStr]] = {}
@@ -13,7 +14,9 @@ class UnixEmailSystem(BaseModel):
         if list_name not in self.mailing_lists:
             self.mailing_lists[list_name] = members
 
-    def send_email(self, from_email: EmailStr, to_emails: List[EmailStr], subject: str, body: str):
+    def send_email(
+        self, from_email: EmailStr, to_emails: List[EmailStr], subject: str, body: str
+    ):
         if from_email not in self.users:
             print(f"Sender '{from_email}' is not registered.")
             return

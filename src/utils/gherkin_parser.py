@@ -175,12 +175,16 @@ Feature: Email Parsing and Interpretation
       | sender            | subject            | body                                     |
       | "user@example.com" | "Task Assignment"  | "Please review the attached report..." |
 """
-parser = GherkinParser(gherkin_text)
-feature = parser.parse()
-print(feature)
-
-pytest_code = parser.generate_pytest_code()
-print(pytest_code)
 
 
+def main():
+    parser = GherkinParser(gherkin_text)
+    feature = parser.parse()
+    print(feature)
 
+    pytest_code = parser.generate_pytest_code()
+    print(pytest_code)
+
+
+if __name__ == "__main__":
+    main()

@@ -28,8 +28,8 @@ def module(
     typer.echo("Module generated successfully.")
 
 
-@app.command()
-def fix_clipboard(ctx: Context):
+@app.command("fix")
+def fix_clipboard():
     """Take the code in the clipboard, fix it with OpenAI, and replace contents of clipboard with fixed code."""
     code = pyperclip.paste()
 
@@ -43,7 +43,7 @@ def fix_clipboard(ctx: Context):
 
 
 # Utility Functions
-def generate_context(task_description, max_tokens=200):
+def generate_context(task_description, max_tokens=2000):
     """
     Generate context based on the task description.
     """
@@ -54,7 +54,7 @@ def generate_context(task_description, max_tokens=200):
         return f"Error generating context: {e}"
 
 
-def solve_task_with_context(task_description, context, max_tokens=200):
+def solve_task_with_context(task_description, context, max_tokens=2000):
     """
     Solve a task using the generated context.
     """

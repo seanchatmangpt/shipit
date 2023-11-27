@@ -7,6 +7,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="test_agent" />
+    <orderEntry type="module" module-name="fgn" />
   </component>
   <component name="PyBDDFrameworkConfig">
     <option name="preferedFrameworkName" value="pytest-bdd" />

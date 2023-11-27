@@ -14,12 +14,7 @@ from shipit.shipit_project_config import (
 )  # Adjust the import path as necessary
 
 
-from sqlmodel import create_engine, SQLModel, Session, select
-
-# SQLModel.DEBUG = True
-
-
-
+from sqlmodel import SQLModel
 
 app = typer.Typer()
 
@@ -38,13 +33,13 @@ def load_subcommands():
 
 load_subcommands()
 
-# - Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
 os.environ["TOKENIZERS_PARALLELISM"] = "(true | false)"
 
 
 @app.callback()
 def main(ctx: Context):
     from shipit.data import engine, get_session
+
     config_file = Path().cwd() / "shipit_project.yaml"
     SQLModel.metadata.create_all(engine)
     ctx.obj = {
@@ -80,52 +75,6 @@ def init(ctx: Context):
     typer.echo(f"Initialized new Shipit project in {directory}")
     ctx.obj["config"] = config
 
-
-def generate_context(task_description, max_tokens=200):
-    """
-    Generate context based on the task description.
-    """
-    try:
-        prompt = f"Create a context with examples, labels, and instructions for the task: {task_description}"
-        return create(prompt=prompt, max_tokens=max_tokens)
-    except Exception as e:
-        return f"Error generating context: {e}"
-
-
-def solve_task_with_context(task_description, context, max_tokens=200):
-    """
-    Solve a task using the generated context.
-    """
-    try:
-        prompt = f"Given the context: {context}\nSolve the task: {task_description}"
-        return create(prompt=prompt, max_tokens=max_tokens)
-    except Exception as e:
-        return f"Error solving task: {e}"
-
-
-@app.command()
-def solve(
-    task_description: str = typer.Option(..., prompt="Enter task description"),
-    max_context_tokens: int = 200,
-    max_solution_tokens: int = 200,
-):
-    """
-    Automatically generate context and solve a task based on user input.
-    """
-    # Generate context for the task
-    context = generate_context(task_description, max_context_tokens)
-    typer.echo("Generated Context:\n" + context)
-
-    # Solve the task with the generated context
-    solution = solve_task_with_context(task_description, context, max_solution_tokens)
-    typer.echo("Solution:\n" + solution)
-
-
-# @app.command("list")
-# def list_calendar_events(ctx: Context):
-#     """List calendar events"""
-#     session = ctx.obj.get("session")
-#     print(session.exec(select(Event)).all())
 
 if __name__ == "__main__":
     app()

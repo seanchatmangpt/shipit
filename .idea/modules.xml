@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../fgn/.idea/fgn.iml" filepath="$PROJECT_DIR$/../fgn/.idea/fgn.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/shipit.iml" filepath="$PROJECT_DIR$/.idea/shipit.iml" />
       <module fileurl="file://$PROJECT_DIR$/../test_agent/.idea/test_agent.iml" filepath="$PROJECT_DIR$/../test_agent/.idea/test_agent.iml" />
     </modules>

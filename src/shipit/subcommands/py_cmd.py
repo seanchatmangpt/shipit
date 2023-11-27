@@ -1,10 +1,8 @@
 import asyncio
-from textwrap import dedent
 
 import typer
 import pyperclip
 
-from utils.complete import acreate
 from utils.create_prompts import create_python
 
 app = typer.Typer(help="Advanced Python Assistant")

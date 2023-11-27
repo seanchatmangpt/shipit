@@ -200,9 +200,11 @@ if __name__ == "__main__":
 
     asyncio.run(main())
 
+
 class User(BaseModel):
     name: str
     email: str
+
 
 class Email(BaseModel):
     id: str
@@ -214,10 +216,12 @@ class Email(BaseModel):
     bcc: List[str] = []
     date: datetime.datetime
 
+
 class MailingList(BaseModel):
     name: str
     members: List[User]
     emails: List[Email] = []
+
 
 class UnixEmailSystem(BaseModel):
     hostname: str

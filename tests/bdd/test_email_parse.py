@@ -15,7 +15,6 @@ def when_email_is_parsed():
     pass
 
 
-
 @when("interpret the body to determine the required action")
 def when_interpret_body_to_determine_action():
     # Implement code to interpret the body and determine the action
@@ -24,4 +23,6 @@ def when_interpret_body_to_determine_action():
 
 @then(parsers.parse("the system should extract the {sender}, {subject}, and {body}"))
 def step_impl(sender, subject, body):
-    raise NotImplementedError(u'STEP: Then the system should extract the <sender>, <subject>, and <body>')
+    raise NotImplementedError(
+        "STEP: Then the system should extract the <sender>, <subject>, and <body>"
+    )

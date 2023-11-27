@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]  # https://python-poetry.org/docs/pyproject/
 name = "shipit"
-version = "0.0.0"
+version = "23.11.26"
 description = "A command-line interface for managing SHIPIT journal entries and project tracking."
 authors = ["Sean Chatman <info@chatmangpt.com>"]
 readme = "README.md"
@@ -50,6 +50,8 @@ pyshacl = "^0.25.0"
 gitpython = "^3.1.40"
 python-multipart = "^0.0.6"
 email-validator = "^2.1.0.post1"
+typer-di = "0.1.2a2"
+scipy = "^1.11.4"
 
 [tool.poetry.group.test.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 coverage = { extras = ["toml"], version = ">=7.2.5" }

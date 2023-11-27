@@ -16,16 +16,9 @@ from typer import Context
 from typetemp.template.smart_template import SmartTemplate
 from utils.complete import create
 from utils.prompt_tools import timer
-from shipit.shipit_project_config import (
-    ShipitProjectConfig,
-)  # Adjust the import path as necessary
-
-app = typer.Typer()
 
 
-@app.command()
-def auto(ctx: Context, prompt: str):
-    typer.echo(f"Generating {prompt} prompt...")
+app = typer.Typer(help="Shipit journaling utilities.")
 
 
 class ShipitTemplate(SmartTemplate):

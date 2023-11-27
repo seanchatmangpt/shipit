@@ -282,9 +282,11 @@ class GitPatch(BaseModel):
         Write the GitPatch object to a file in git diff format.
         :param file_path: Path of the file where the patch should be written.
         """
-        with open(file_path, 'w') as file:
+        with open(file_path, "w") as file:
             # Assuming these fields exist in your GitPatchHeader model
-            current_date = datetime.now().strftime("From %Y%m%d%H%M%S Mon Sep 17 00:00:00 2001\n")
+            current_date = datetime.now().strftime(
+                "From %Y%m%d%H%M%S Mon Sep 17 00:00:00 2001\n"
+            )
             file.write(current_date)
             file.write(f"From: {self.header.from_author}\n")
             file.write(f"Date: {self.header.date}\n")
@@ -297,9 +299,11 @@ class GitPatch(BaseModel):
             # Writing each hunk
             for hunk in self.hunks:
                 file.write("\n")
-                file.write(f"@@ -{hunk.startsrc},{hunk.linessrc} +{hunk.starttgt},{hunk.linestgt} @@\n")
+                file.write(
+                    f"@@ -{hunk.startsrc},{hunk.linessrc} +{hunk.starttgt},{hunk.linestgt} @@\n"
+                )
                 for line in hunk.text:
-                    file.write(line + '\n')
+                    file.write(line + "\n")
 
     def apply(self, strip=0, root=None):
         """

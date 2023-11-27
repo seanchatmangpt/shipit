@@ -1,6 +1,6 @@
 import typer
 
-app = typer.Typer()
+app = typer.Typer(help="Content creation: reports, plans, posts, and more.")
 
 
 @app.command("report")

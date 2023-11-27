@@ -49,9 +49,7 @@ class GitPatch(BaseModel):
         for line in lines:
             if line.startswith("--- "):
                 current_file = FileDiff(
-                    source_file=line[4:],
-                    target_file=None,
-                    hunks=[]
+                    source_file=line[4:], target_file=None, hunks=[]
                 )
                 diff_files.append(current_file)
 
@@ -72,12 +70,14 @@ class GitPatch(BaseModel):
                     current_hunk.linestgt = int(match.group(4))
 
             else:
-                # Collect hunk content 
+                # Collect hunk content
                 current_hunk.lines.append(line)
 
         return GitPatch(diff_files=diff_files)
 
 
-git_patch = GitPatch.from_patch("/Users/candacechatman/dev/shipit/0001-Hello-World.patch")
+git_patch = GitPatch.from_patch(
+    "/Users/candacechatman/dev/shipit/0001-Hello-World.patch"
+)
 
 print(git_patch.to_patch())

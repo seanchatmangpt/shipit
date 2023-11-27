@@ -9,23 +9,16 @@ from lchop.context.work_context import load_workflow
 from utils.complete import acreate
 from utils.create_prompts import create_python
 
-app = typer.Typer(help="Advanced Python Assistant")
+app = typer.Typer(help="YAML workflow execution.")
 
 
 @app.command("run")
 def run_workflow_code(file: str = typer.Option(None, "--file", "-f")):
+    """
+    Run a workflow from a YAML file.
+    """
     asyncio.run(_run_workflow_code(file))
 
 
 async def _run_workflow_code(file):
     await load_workflow(file)
-
-
-# import anyio
-#
-# async def main():
-#     await _run_workflow_code("/Users/candacechatman/dev/shipit/src/lchop/workflows/hello_world_workflow.yaml")
-#
-#
-# if __name__ == '__main__':
-#     anyio.run(main)

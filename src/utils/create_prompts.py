@@ -629,12 +629,14 @@ async def create_data(prompt: str, cls: type) -> dict:
         return extracted_dict
     except (SyntaxError, TypeError, JSONDecodeError) as e:
         loguru.logger.warning(f"Invalid {cls.__name__} generated: {e} {result}")
-        fix_instructions = dedent(f"""You are a JSON fixing assistant.
+        fix_instructions = dedent(
+            f"""You are a JSON fixing assistant.
         Please fix the following json so that it can be used to
         create an instance of {cls.__name__}:\n\n{result}\n\n
         
         ```json
-        {{""")
+        {{"""
+        )
 
         corrected_result = await acreate(
             prompt=fix_instructions,
@@ -670,7 +672,8 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
 
     Complete the following code block:
     ```json
-    {{""")
+    {{"""
+    )
 
     print(instructions)
     result = await acreate(
@@ -689,13 +692,15 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
         return extracted_dict
     except (SyntaxError, TypeError, JSONDecodeError) as e:
         loguru.logger.warning(f"Invalid {cabal.__name__} generated: {e} {result}")
-        fix_instructions = dedent(f"""You are a JSON fixing assistant.
+        fix_instructions = dedent(
+            f"""You are a JSON fixing assistant.
             Please fix the following json so that it can be used to
             create kwargs:
             {result}
 
             ```json
-            {{""")
+            {{"""
+        )
 
         corrected_result = await acreate(
             prompt=fix_instructions,

@@ -124,8 +124,6 @@ class Orchestrator:
 import anyio
 
 
-
-
 async def main():
     yaml_specialist = Agent(agent_id="YamlAssistant", functions=[create_yaml])
     jinja_specialist = Agent(agent_id="JinjaAssistant", functions=[create_jinja])

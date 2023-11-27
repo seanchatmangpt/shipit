@@ -1,14 +1,16 @@
 import json
 import uuid
+from dataclasses import dataclass
 from pathlib import Path
 
 import openai
 from dateutil import parser
 from icontract import require, ensure
+from pydantic import BaseModel
 from slugify import slugify
 from sqlmodel import Field, SQLModel, Relationship, select
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, NamedTuple
 
 from tzlocal import get_localzone
 
@@ -16,9 +18,18 @@ from shipit.data import get_session, get_mem_store
 from utils.crud_tools import add_model, update_model, delete_model, get_model
 
 
-def generate_embeddings(text):
-    response = openai.embeddings.create(input=text, model="text-embedding-ada-002")
-    return response.data[0]
+class OptionConfig(BaseModel):
+    model: Optional[str]
+    input_file: Optional[str]
+    output_file: Optional[str]
+    prompt: Optional[str]
+    verbose: Optional[bool]
+    auto_save: Optional[bool]
+    paste_from_clipboard: Optional[bool]
+    file_extension: Optional[str]
+    append_to_output: Optional[bool]
+    response: Optional[str]
+    max_tokens: Optional[int]
 
 
 class Calendar(SQLModel, table=True):

@@ -45,11 +45,12 @@ class RenderMixin:
         """
         # copy the self dict
         properties = self.__dict__.copy()
+        properties.update(self.__class__.__dict__)
 
         # If the value of a property is a TypedTemplate, render it
         for name, value in properties.items():
             if isinstance(value, RenderMixin):
-                properties[name] = value._render()
+                properties[name] = value._render(**properties)
             elif isinstance(value, str):
                 properties[name] = render_str(value)
 

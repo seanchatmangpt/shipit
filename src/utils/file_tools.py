@@ -191,15 +191,16 @@ def slugify(text):
     text = text.lower()
 
     # Replace spaces with hyphens and remove other non-alphanumeric characters
-    text = re.sub(r'[^a-z0-9-]', '', text)
+    text = re.sub(r"[^a-z0-9-]", "", text)
 
     # Replace multiple consecutive hyphens with a single hyphen
-    text = re.sub(r'[-]+', '-', text)
+    text = re.sub(r"[-]+", "-", text)
 
     # Remove leading and trailing hyphens
-    text = text.strip('-')
+    text = text.strip("-")
 
     return text
+
 
 # project root directory
 # Path: src/utils/file_tools.py

@@ -52,7 +52,7 @@ python-multipart = "^0.0.6"
 email-validator = "^2.1.0.post1"
 typer-di = "0.1.2a2"
 scipy = "^1.11.4"
-pulsar-client = "3.0.1"
+pulsar-client = "3.0.0"
 
 [tool.poetry.group.test.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 coverage = { extras = ["toml"], version = ">=7.2.5" }

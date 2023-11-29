@@ -126,6 +126,9 @@ async def create_domain_model_from_yaml(
 
 
 async def create_yaml(prompt, max_tokens=2500, model=None):
+    """
+    Generate a YAML file based on the given prompt.
+    """
     yaml_prompt = dedent(
         f"""
     Objective:
@@ -190,7 +193,7 @@ async def create_code(
     prompt, language="code", max_tokens=2500, model=None, filepath=None, temperature=0.7
 ):
     instructions = "Create a working example from this"  # await spr(prompt, encode=False, max_tokens=100)
-    print(instructions)
+    # print(instructions)
     create_prompt = TypedTemplate(
         source=create_code_template,
         language=language,
@@ -236,6 +239,9 @@ ready to be deployed to a production environment.
 async def create_python(
     prompt, max_tokens=2500, model=None, filepath=None, temperature=0.7
 ):
+    """
+    Generate Python code based on the given prompt.
+    """
     create_prompt = TypedTemplate(source=create_python_template, prompt=prompt)()
 
     return await __create(
@@ -271,7 +277,7 @@ async def __create(
         source=__create_template, prompt=prompt, md_type=md_type, suffix=suffix
     )()
 
-    # print(create_prompt)
+    # # print(create_prompt)
 
     result = await acreate(
         prompt=create_prompt,
@@ -280,8 +286,8 @@ async def __create(
         max_tokens=max_tokens,
         temperature=temperature,
     )
-    # print(f"Prompt: {result}")
-    # print(f"Result: {result}")
+    # # print(f"Prompt: {result}")
+    # # print(f"Result: {result}")
 
     if filepath:
         await write(contents=result, filename=filepath)
@@ -492,11 +498,11 @@ async def main2():
 
     enc = await spr(satisfy)
 
-    print(enc)
+    # print(enc)
 
     dec = await spr(enc, encode=False)
 
-    print(dec)
+    # print(dec)
 
     action_space = """ CoALA also includes a structured action space. This refers to the set of 
     actions that an agent can take in response to a given situation. By organizing these actions in a structured 
@@ -505,7 +511,7 @@ async def main2():
     # evo = await create_evo(dec, filepath="coala_evo.yaml")
     # evo = await create_evo(, filepath="action_space_evo.yaml")
 
-    # print(evo)
+    # # print(evo)
 
 
 async def gen_evo():
@@ -558,7 +564,7 @@ async def create_tailwind_landing(
         stop=["```"],
     )
 
-    print(prompt)
+    # print(prompt)
 
     create_prompt = TypedTemplate(
         source=create_tailwind_landing_template, prompt=prompt, title=title
@@ -612,7 +618,7 @@ async def create_data(prompt: str, cls: type) -> dict:
     {{"""
     )
 
-    print(instructions)
+    # print(instructions)
     result = await acreate(
         prompt=instructions,
         stop=["```", "\n\n"],
@@ -648,7 +654,7 @@ async def create_data(prompt: str, cls: type) -> dict:
 
 @require(lambda prompt: isinstance(prompt, str))
 @require(lambda cabal: isinstance(cabal, Callable))
-@ensure(lambda result, cls: isinstance(result, dict))
+@ensure(lambda result: isinstance(result, dict))
 async def create_kwargs(prompt: str, cabal: Callable) -> dict:
     """
     Create a dict of data from a prompt that can be passed to the given class as kwargs
@@ -675,16 +681,16 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
     {{"""
     )
 
-    print(instructions)
+    # print(instructions)
     result = await acreate(
         prompt=instructions,
         stop=["```", "\n\n"],
-        max_tokens=250,
+        max_tokens=2000,
     )
 
     # Safely evaluate to expected type
     try:
-        extracted_dict = extract_dict("{" + result.replace("\n", ""))
+        extracted_dict = json.loads("{" + result.replace("\n", ""))
 
         if not isinstance(extracted_dict, dict):
             raise TypeError(f"Expected dict, got {type(extracted_dict)}.")
@@ -704,9 +710,10 @@ async def create_kwargs(prompt: str, cabal: Callable) -> dict:
 
         corrected_result = await acreate(
             prompt=fix_instructions,
-            stop=["```"],
+            stop=["```", "\n\n"],
             max_tokens=2000,
         )
+        # print("corrected_result", corrected_result)
         return json.loads("{" + corrected_result.replace("\n", ""))
 
 
@@ -741,9 +748,9 @@ Choose a name for this prompt
 
 The name is: """
         class_name = await acreate(prompt=name_prompt, max_tokens=100)
-        print("The name is: ", class_name)
+        # # print("The name is: ", class_name)
 
-    print(class_name)
+    # # print(class_name)
     instructions = dedent(
         f"""You are a expert Pydantic class assistant.
         
@@ -828,9 +835,9 @@ async def main2():
     Make the values extremely verbose and detailed. Do not use any abbreviations."""
     # data = await create_data(prompt, VRIO)
     # # data = await create_data(prompt, SWOTAnalysis)
-    # print(data)
+    # # print(data)
     cls = await create_pydantic_class(prompt, "ADSC", file_path="adsc_model.py")
-    print(cls)
+    # print(cls)
 
 
 async def main():
@@ -850,7 +857,7 @@ async def main():
     </body>
     </html>"""
     cls = await create_pydantic_class(template)
-    print(cls)
+    # print(cls)
 
 
 if __name__ == "__main__":

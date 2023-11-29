@@ -1,5 +1,4 @@
 import os
-from lchop.tasks.adsc_tasks import *
 
 import typer
 from importlib import import_module
@@ -7,7 +6,6 @@ from pathlib import Path
 
 from typer import Context
 
-from utils.complete import create
 from utils.date_tools import next_friday
 from shipit.shipit_project_config import (
     ShipitProjectConfig,

@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Callable, Any
 from utils.create_prompts import *
+from utils.file_tools import read
 
 
 class Agent(BaseModel):
@@ -135,7 +136,21 @@ async def main():
 
     team_agents = [yaml_specialist, jinja_specialist, python_coder, pydantic_coder]
     orchestrator = Orchestrator(team_agents)
+    task ="Create multi-page streamlit icalendar vevent todo python app"
+    agent = await orchestrator.choose_agent(task_description=task)
+    await agent.execute(task)
+
+
+async def main2():
+    """
+
+    """
+    code = await read('./streamlit_icalendar_vevent_todo_app.py')
+
+    python_coder = Agent(agent_id="PythonAssistant", functions=[fix_code])
+    fixed_code = await python_coder.execute(code)
+    await write(contents=fixed_code, filename='fixed_code.py')
 
 
 if __name__ == "__main__":
-    anyio.run(main)
+    anyio.run(main2)

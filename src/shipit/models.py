@@ -14,8 +14,9 @@ from typing import Optional, List, NamedTuple
 
 from tzlocal import get_localzone
 
-from shipit.data import get_session, get_mem_store
+from shipit.data import get_session
 from utils.crud_tools import add_model, update_model, delete_model, get_model
+from utils.date_tools import parse_datetime
 
 
 class OptionConfig(BaseModel):
@@ -133,7 +134,6 @@ class Event(SQLModel, table=True):
     @require(lambda summary: summary is None or isinstance(summary, str))
     @require(lambda description: description is None or isinstance(description, str))
     @require(lambda location: location is None or isinstance(location, str))
-    @ensure(lambda result: result.id is not None)
     def create(
         dtstart: str,
         dtend: str = None,
@@ -169,7 +169,6 @@ class Event(SQLModel, table=True):
     @require(lambda summary: summary is None or isinstance(summary, str))
     @require(lambda description: description is None or isinstance(description, str))
     @require(lambda location: location is None or isinstance(location, str))
-    # @ensure(lambda result: result.id is not None)
     def update(
         event_id: int,
         dtstart: str,
@@ -223,19 +222,20 @@ class Event(SQLModel, table=True):
 
         return get_session().exec(query.offset(page * per_page).limit(per_page)).all()
 
-    @staticmethod
-    def query(text: str, where: dict = None, n_results: int = 10) -> List["Event"]:
-        """Query events"""
-        results = get_mem_store().query(
-            collection_id="Event_collection",
-            query=text,
-            where=where,
-            n_results=n_results,
-        )
-        result_ids = [json.loads(r)["id"] for r in results["documents"][0]]
-        models = get_session().exec(select(Event).where(Event.id.in_(result_ids))).all()
-        # sort models by result_ids
-        return sorted(models, key=lambda m: result_ids.index(m.id))
+    # @staticmethod
+    # def query(text: str, where: dict = None, n_results: int = 10) -> List["Event"]:
+    # TODO: Reimplement with
+    #     """Query events"""
+    #     results = get_mem_store().query(
+    #         collection_id="Event_collection",
+    #         query=text,
+    #         where=where,
+    #         n_results=n_results,
+    #     )
+    #     result_ids = [json.loads(r)["id"] for r in results["documents"][0]]
+    #     models = get_session().exec(select(Event).where(Event.id.in_(result_ids))).all()
+    #     # sort models by result_ids
+    #     return sorted(models, key=lambda m: result_ids.index(m.id))
 
 
 class Todo(SQLModel, table=True):
@@ -249,6 +249,67 @@ class Todo(SQLModel, table=True):
     completed: Optional[datetime] = Field(description="Completion date/time")
     calendar_id: Optional[int] = Field(default=None, foreign_key="calendar.id")
     calendar: Optional[Calendar] = Relationship(back_populates="todos")
+
+    @staticmethod
+    @require(lambda summary: summary is isinstance(summary, str))
+    @ensure(lambda result: result.id is not None)
+    def create(
+            summary: str,
+            dtstart: str | datetime = None,
+            due: str | datetime = None,
+            description: str = None,
+            completed: str | datetime = None,
+            calendar_id: Optional[int] = None
+    ) -> "Todo":
+        uid = uuid.uuid4()
+        uid_str = str(uid)
+
+        dtstamp = datetime.utcnow()
+
+        new_todo = Todo(
+            uid=uid_str,
+            dtstamp=dtstamp,
+            dtstart=parse_datetime(dtstart),
+            due=parse_datetime(due),
+            summary=summary,
+            description=description,
+            completed=parse_datetime(completed),
+            calendar_id=calendar_id
+        )
+
+        add_model(new_todo)
+
+        return new_todo
+
+    @staticmethod
+    @require(lambda todo_id: isinstance(todo_id, int))
+    def update(
+            todo_id: int,
+            summary: str,
+            dtstart: str | datetime = None,
+            due: str | datetime = None,
+            description: str = None,
+            completed: str | datetime = None,
+            calendar_id: Optional[int] = None
+    ):
+        with update_model(Todo, todo_id) as todo:
+            todo.dtstamp = datetime.utcnow()
+            todo.dtstart = parse_datetime(dtstart)
+            todo.due = parse_datetime(due)
+            todo.summary = summary
+            todo.description = description
+            todo.completed = parse_datetime(completed)
+            todo.calendar_id = calendar_id
+
+    @staticmethod
+    @require(lambda todo_id: isinstance(todo_id, int))
+    def delete(todo_id: int):
+        delete_model(Todo, todo_id)
+
+    @staticmethod
+    @require(lambda todo_id: isinstance(todo_id, int))
+    def read(todo_id: int) -> "Todo":
+        return get_model(Todo, todo_id)
 
 
 class Journal(SQLModel, table=True):
@@ -273,3 +334,56 @@ class Alarm(SQLModel, table=True):
     description: Optional[str] = Field(description="Description of the alarm")
     event_id: Optional[int] = Field(default=None, foreign_key="event.id")
     event: Optional[Event] = Relationship(back_populates="alarms")
+
+    @staticmethod
+    @require(lambda action: isinstance(action, str))
+    @require(lambda trigger: isinstance(trigger, datetime))
+    def create(
+            action: str,
+            trigger: str | datetime,
+            duration: str = None,
+            repeat: int = None,
+            description: str = None,
+            event_id: Optional[int] = None
+    ) -> "Alarm":
+        new_alarm = Alarm(
+            action=action,
+            trigger=parse_datetime(trigger),
+            duration=duration,
+            repeat=repeat,
+            description=description,
+            event_id=event_id
+        )
+
+        add_model(new_alarm)
+
+        return new_alarm
+
+    @staticmethod
+    @require(lambda alarm_id: isinstance(alarm_id, int))
+    def update(
+            alarm_id: int,
+            action: str,
+            trigger: str | datetime,
+            duration: str = None,
+            repeat: int = None,
+            description: str = None,
+            event_id: Optional[int] = None
+    ):
+        with update_model(Alarm, alarm_id) as alarm:
+            alarm.action = action
+            alarm.trigger = parse_datetime(trigger)
+            alarm.duration = duration
+            alarm.repeat = repeat
+            alarm.description = description
+            alarm.event_id = event_id
+
+    @staticmethod
+    @require(lambda alarm_id: isinstance(alarm_id, int))
+    def delete(alarm_id: int):
+        delete_model(Alarm, alarm_id)
+
+    @staticmethod
+    @require(lambda alarm_id: isinstance(alarm_id, int))
+    def read(alarm_id: int) -> "Alarm":
+        return get_model(Alarm, alarm_id)

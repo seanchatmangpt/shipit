@@ -7,7 +7,7 @@ from utils.create_prompts import *
 from utils.file_tools import read
 
 
-class Agent(BaseModel):
+class Agent():
     agent_id: str
     memory: dict = {}  # Agent's memory for context
     functions: list[Callable] = []  # Agent's functions

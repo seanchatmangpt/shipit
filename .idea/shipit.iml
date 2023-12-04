@@ -11,6 +11,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="test_agent" />
     <orderEntry type="module" module-name="fgn" />
+    <orderEntry type="module" module-name="aagent" />
   </component>
   <component name="PyBDDFrameworkConfig">
     <option name="preferedFrameworkName" value="pytest-bdd" />

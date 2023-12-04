@@ -1,5 +1,22 @@
 import datetime
 
+from dateutil import parser
+from typing import Optional
+
+
+def parse_datetime(dt: str | datetime) -> Optional[datetime]:
+    """
+    Parses a datetime string or object into a datetime object.
+
+    :param dt: Datetime in string or datetime object format.
+    :return: Parsed datetime object or None.
+    """
+    if isinstance(dt, str):
+        return parser.parse(dt)
+    elif isinstance(dt, datetime):
+        return dt
+    return None
+
 
 def next_friday() -> str:
     today = datetime.date.today()

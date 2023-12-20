@@ -200,3 +200,7 @@ async def generate_profiles_page(task, work_ctx, **kwargs):
         ]
     )
     print(full_img)
+
+@register_task
+def global_search(ctx, keywords, **kwargs):
+    url = f"https://www.linkedin.com/search/results/people/?keywords={keywords}%20head%20of%20uk%20sales&origin=SWITCH_SEARCH_VERTICAL&sid=qD_"

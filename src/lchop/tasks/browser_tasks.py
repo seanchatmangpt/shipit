@@ -12,3 +12,8 @@ async def launch_browser(ctx, **kwargs):
         "success": True,
         "results": f"Successfully launched browser",
     }
+
+
+@register_task
+async def goto_page(ctx: "WorkContext", **kwargs):
+    await ctx.browser_ctx.page.goto("https://www.google.com")

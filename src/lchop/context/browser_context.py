@@ -94,6 +94,9 @@ class BrowserContext:
             logger.error(f"Failed to get WebSocket URL: {e}")
             raise
 
+    def goto(self, url, options=None, **kwargs):
+        self.page.goto(url, options, **kwargs)
+
 
 if __name__ == "__main__":
     ctx = BrowserContext(use_existing_browser=True, enable_request_interception=True)
